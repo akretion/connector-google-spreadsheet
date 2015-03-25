@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_google_spreadsheet_backend_form" model="ir.ui.view">
+          <field name="model">google.spreadsheet.backend</field>
+          <field name="arch" type="xml">
+            <form string="Google Spreadsheet Backend">
+              <sheet>
+                <h1>Google Spreadsheet</h1>
+                <group col="4" string="Google Spreadsheet configuration">
+                    <field name="version"/>
+                    <field name="name"/>
+                    <separator colspan="4" string="Google Account"/>
+                    <field name="email"/>
+                    <field name="p12_key"/>
+                </group>
+                <notebook>
+                  <page name="task" string="Tasks">
+                    <group colspan="6">
+                      <field name="document_ids" nolabel="1"
+                          context="{'google_spreadsheet_id': active_id}">
+                        <tree>
+                          <field name="name"/>
+                          <button name="run" string="Run"
+                                  icon="gtk-go-forward"
+                                  type="object"
+                                  attrs="{'invisible': [('active', '=', False)]}">
+                          </button>
+                          <field name="active" />
+                          <field name="submission_date"/>
+                        </tree>
+                        <form>
+                          <group colspan="4">
+                            <field name="name"/>
+                            <field name="active" />
+                            <field name="submission_date"/>
+                            <field name="chunk_size"/>
+                            <separator string="Internal settings" colspan="4"/>
+                            <field name="model_id"/>
+                            <separator string="External setting" colspan="4"/>
+                            <field name="document_url"/>
+                            <field name="document_sheet"/>
+                          </group>
+                        </form>
+                      </field>
+                    </group>
+                  </page>
+                </notebook>
+              </sheet>
+            </form>
+          </field>
+        </record>
+
+        <record id="view_google_spreadsheet_backend_tree" model="ir.ui.view">
+          <field name="model">google.spreadsheet.backend</field>
+          <field name="arch" type="xml">
+            <tree string="Google Spreadsheet Backends">
+              <field name="name"/>
+              <field name="version"/>
+            </tree>
+          </field>
+        </record>
+
+        <record id="action_google_spreadsheet_backend" model="ir.actions.act_window">
+          <field name="name">Google Spreadsheet Backends</field>
+          <field name="res_model">google.spreadsheet.backend</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">tree,form</field>
+          <field name="view_id" ref="view_google_spreadsheet_backend_tree"/>
+        </record>
+
+        <menuitem id="menu_google_spreadsheet_root"
+                  parent="connector.menu_connector_root"
+                  name="Google Spreadsheet"
+                  sequence="10"
+                  groups="connector.group_connector_manager"/>
+
+        <menuitem id="menu_google_spreadsheet_backend"
+                  name="Backends"
+                  parent="menu_google_spreadsheet_root"
+                  action="action_google_spreadsheet_backend"/>
+
+        <!-- After installation of the module, open the related menu -->
+        <record id="action_google_spreadsheet_backend" model="ir.actions.client">
+          <field name="name">Open Google Spreadsheet backend menu</field>
+          <field name="tag">reload</field>
+          <field name="params" eval="{'menu_id': ref('menu_google_spreadsheet_backend')}"/>
+        </record>
+        <record id="base.open_menu" model="ir.actions.todo">
+          <field name="action_id" ref="action_google_spreadsheet_backend"/>
+          <field name="state">open</field>
+        </record>
+
+    </data>
+</openerp>
