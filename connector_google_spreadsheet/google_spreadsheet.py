@@ -2,7 +2,7 @@
 ###############################################################################
 #
 #   Module for Odoo
-#   Copyright (C) 2015 Akretion (http://www.akretion.com).
+#   Copyright (C) 2015-TODAY Akretion (http://www.akretion.com).
 #   @author Sylvain Calador <sylvain.calador@akretion.com>
 #
 #   This program is free software: you can redistribute it and/or modify

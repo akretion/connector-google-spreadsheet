@@ -2,7 +2,7 @@
 ###############################################################################
 #
 #   Module for Odoo
-#   Copyright (C) 2015 Akretion (http://www.akretion.com).
+#   Copyright (C) 2015-TODAY Akretion (http://www.akretion.com).
 #   @author Sylvain Calador <sylvain.calador@akretion.com>
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -25,14 +25,23 @@
     'author': 'Akretion',
     'license': 'AGPL-3',
     'category': 'Connector',
+    'description': '''
+        This module allows to load Google Spreadsheets into Odoo.
+        This module requires the following Python dependencies:
+
+        pip install pyOpenSSL (>= 0.14)
+        pip install oauth2client (>= 1.4.7)
+        pip install gspread (>= 0.2.3
+    ''',
     'depends': [
         'connector',
     ],
     'data': [
         'backend_view.xml',
     ],
-    'qweb': [
-    ],
+    'external_dependencies': {
+        'python': ['OpenSSL', 'oauth2client', 'gspread'],
+    },
     'installable': True,
     'application': False,
 }
