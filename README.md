@@ -2,7 +2,7 @@
 
 This module allows the importation of Google Spreadsheet into Odoo.
 
-Important Notes:
+Important notes:
 ================
 - The header row is mandatory, and use the same syntax as
   native Odoo CSV importation tool.
@@ -18,7 +18,7 @@ Important Notes:
 Dependencies:
 =============
 
-This module requires the following Python dependancies:
+This module requires the following Python dependencies:
 
     pip install pyOpenSSL
     pip install oauth2client
@@ -26,9 +26,11 @@ This module requires the following Python dependancies:
 
 Authors:
 ========
-Copyright (C) 2015-TODAY Akretion (http://www.akretion.com).
-Sylvain Calador <sylvain.calador@akretion.com>
+- Copyright (C) 2015-TODAY Akretion (http://www.akretion.com).
+- Sylvain Calador <sylvain.calador@akretion.com>
 
-License: AGPL-V3
+License:
+========
+AGPL-V3
 
 (Work in progress)
