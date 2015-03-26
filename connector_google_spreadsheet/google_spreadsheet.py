@@ -26,10 +26,12 @@ import gspread
 import base64
 from oauth2client.client import SignedJwtAssertionCredentials
 from openerp import models, fields, api
+from openerp.exceptions import Warning
+from openerp.tools.translate import _
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.queue.job import job, related_action
+from openerp.addons.connector.exception import FailedJobError
 
-SEPARATOR = ';'
 SCOPE = ['https://spreadsheets.google.com/feeds',
          'https://docs.google.com/feeds']
 
@@ -65,14 +67,16 @@ class GoogleSpreadsheetDocument(models.Model):
         string='Google Spreadsheet Backend'
     )
 
-    def _prepare_import_args(self, fields, line_start, line_end, col_end):
+    def _prepare_import_args(self, fields, row_start, row_end, col_start, col_end, error_col):
         return {
             'document_url': self.document_url,
             'document_sheet': self.document_sheet,
             'fields': fields,
-            'chunk_line_start': line_start,
-            'chunk_line_end': line_end,
+            'chunk_row_start': row_start,
+            'chunk_row_end': row_end,
+            'sheet_col_start': col_start,
             'sheet_col_end': col_end,
+            'error_col': error_col,
             'odoo_model': self.model_id.model,
             'backend_id': self.backend_id.id,
         }
@@ -87,26 +91,48 @@ class GoogleSpreadsheetDocument(models.Model):
         backend = self.backend_id
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
-        # first column data cells (without header)
-        first_column_cells = sheet.col_values(1)[1:]
-        chunk_size = 0
-        line_start = 2
-        line_end = line_start
+
+
+        row_start = 2
+        row_end = row_start
+
         first_row = sheet.row_values(1)
-        import_fields = first_row
+        if first_row[0] == 'ERRORS':
+            col_start = 2
+            import_fields = first_row[1:]
+            error_col = 1
+
+        else:
+            col_start = 1
+            import_fields = first_row
+            error_col = None
+
+        # first column data cells (without header)
+        first_column_cells = sheet.col_values(col_start)[1:]
+        if not first_column_cells:
+            message = _('Nothing to import,'
+                'the first column of data seams empty!')
+            raise Warning(message)
+
         col_end = len(first_row)
         eof = len(first_column_cells) + 1
+
         for cell in first_column_cells:
-            chunk_size = line_end - line_start
-            if chunk_size >= self.chunk_size or line_end >= eof:
+            chunk_size = row_end - row_start
+            if chunk_size >= self.chunk_size or row_end >= eof:
                 import_args = self._prepare_import_args(
-                    import_fields, line_start, line_end, col_end
+                    import_fields,
+                    row_start,
+                    row_end,
+                    col_start,
+                    col_end,
+                    error_col
                 )
                 import_document.delay(session, self._name, import_args)
-                line_end += 1
-                line_start = line_end
+                row_end += 1
+                row_start = row_end
             else:
-                line_end += 1
+                row_end += 1
 
         self.submission_date = fields.Datetime.now()
 
@@ -146,32 +172,61 @@ def import_document(session, model_name, args):
     backend_id = args['backend_id']
     document_url = args['document_url']
     document_sheet = args['document_sheet']
-    line_start = args['chunk_line_start']
-    line_end = args['chunk_line_end']
-    col_end = args['sheet_col_end']
     fields = args['fields']
+    row_start = args['chunk_row_start']
+    row_end = args['chunk_row_end']
+    col_start = args['sheet_col_start']
+    col_end = args['sheet_col_end']
+    error_col = args['error_col']
     model_obj = session.pool[args['odoo_model']]
 
     backend = session.browse('google.spreadsheet.backend', backend_id)
     document = open_document(backend, document_url)
     sheet = document.worksheet(document_sheet)
 
-    start = sheet.get_addr_int(line_start, 1)
-    stop = sheet.get_addr_int(line_end, col_end)
+    start = sheet.get_addr_int(row_start, col_start)
+    stop = sheet.get_addr_int(row_end, col_end)
     chunk = sheet.range(start + ':' + stop)
-    data = []
-    row = [''] * col_end
-    current_row = 2
+
+    cols = col_end - col_start + 1
+    rows = row_end - row_start + 1
+    data = [['' for c in range(cols)] for r in range(rows)]
     for cell in chunk:
-        if cell.row != current_row:
-            data.append(row)
-            row = [''] * col_end
-        row[cell.col - 1] = cell.value
-        current_row = cell.row
+        data[cell.row-2][cell.col-col_start] = cell.value
 
     result = model_obj.load(session.cr,
                             session.uid,
                             fields,
                             data,
                             context=session.context)
-    return result
+
+    # clear previous errors
+    if error_col is not None:
+        start = sheet.get_addr_int(row_start, error_col)
+        stop = sheet.get_addr_int(row_end, error_col)
+        error_cells = sheet.range(start + ':' + stop)
+        for cell in error_cells:
+            cell.value = ''
+        sheet.update_cells(error_cells)
+
+    # log errors
+    errors = False
+    messages = []
+    for m in result['messages']:
+        row = row_start + m['record']
+        message = m['message']
+        message_type = m['type']
+        messages.append('%s:line %i: %s' % (message_type, row, message))
+        if message_type == 'error':
+            errors = True
+            if error_col is not None:
+                error_cell = sheet.get_addr_int(row, error_col)
+                sheet.update_acell(error_cell, message)
+
+    if errors:
+        raise FailedJobError(messages)
+    else:
+        imported_ids = ', '.join([str(id_) for id_ in result['ids']])
+        messages.append('Imported ids: %s' % imported_ids)
+
+    return messages
