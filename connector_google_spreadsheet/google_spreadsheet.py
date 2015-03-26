@@ -20,6 +20,7 @@
 #
 ###############################################################################
 
+import re
 import logging
 
 import gspread
@@ -67,7 +68,8 @@ class GoogleSpreadsheetDocument(models.Model):
         string='Google Spreadsheet Backend'
     )
 
-    def _prepare_import_args(self, fields, row_start, row_end, col_start, col_end, error_col):
+    def _prepare_import_args(
+            self, fields, row_start, row_end, col_start, col_end, error_col):
         return {
             'document_url': self.document_url,
             'document_sheet': self.document_sheet,
@@ -92,7 +94,6 @@ class GoogleSpreadsheetDocument(models.Model):
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
 
-
         row_start = 2
         row_end = row_start
 
@@ -111,7 +112,7 @@ class GoogleSpreadsheetDocument(models.Model):
         first_column_cells = sheet.col_values(col_start)[1:]
         if not first_column_cells:
             message = _('Nothing to import,'
-                'the first column of data seams empty!')
+                        'the first column of data seams empty!')
             raise Warning(message)
 
         col_end = len(first_row)
@@ -192,8 +193,29 @@ def import_document(session, model_name, args):
     rows = row_end - row_start + 1
     data = [['' for c in range(cols)] for r in range(rows)]
     for cell in chunk:
-        data[cell.row-2][cell.col-col_start] = cell.value
+        data[cell.row - 2][cell.col - col_start] = cell.value
 
+    # skip all non-model fields
+    special_fields = ['.id', 'id']
+
+    model_field_names = [k for k, v in model_obj._all_columns.iteritems()]
+    model_field_names.extend(special_fields)
+
+    field_names = []
+    for field in fields:
+        if field and field not in special_fields:
+            field = re.sub('^(\w*).*', '\\1', field)
+        field_names.append(field)
+
+    skip_fields = list(set(field_names) - set(model_field_names))
+    skip_indexes = [i for i, f in enumerate(fields) if f in skip_fields]
+
+    for index in sorted(skip_indexes, reverse=True):
+        del fields[index]
+        for row in data:
+            del row[index]
+
+    # import the chunk of clean data
     result = model_obj.load(session.cr,
                             session.uid,
                             fields,
@@ -227,6 +249,6 @@ def import_document(session, model_name, args):
         raise FailedJobError(messages)
     else:
         imported_ids = ', '.join([str(id_) for id_ in result['ids']])
-        messages.append('Imported ids: %s' % imported_ids)
+        messages.append('Imported/Updated ids: %s' % imported_ids)
 
-    return messages
+    return '\n'.join(messages)
