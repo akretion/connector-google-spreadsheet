@@ -65,6 +65,7 @@ class GoogleSpreadsheetDocument(models.Model):
     document_sheet = fields.Char(
         'Document sheet name', size=255, required=True)
     submission_date = fields.Datetime('Submission date')
+    header_row = fields.Integer('Header', default=1)
     data_row_start = fields.Integer('First row of data', default=2)
     chunk_size = fields.Integer('Chunk size', default=100)
     active = fields.Boolean('Active', default=True)
@@ -99,19 +100,25 @@ class GoogleSpreadsheetDocument(models.Model):
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
 
-        first_row = sheet.row_values(1)
+        if self.header_row >= self.data_row_start:
+            message = _('The header row must precede data! '
+                        'Check the row parameters')
+            raise Warning(message)
+
+        first_row = sheet.row_values(max(self.header_row,1))
+        if not first_row:
+            raise Warning(_('Header cells seems empty!'))
         if first_row[0] == 'ERRORS':
             col_start = 2
             import_fields = first_row[1:]
             error_col = 1
-
         else:
             col_start = 1
             import_fields = first_row
             error_col = None
 
-        # first column data cells (without header)
-        first_column_cells = sheet.col_values(col_start)[1:]
+        # first column data cells
+        first_column_cells = sheet.col_values(col_start)[self.header_row:]
         if not first_column_cells:
             message = _('Nothing to import,'
                         'the first column of data seams empty!')

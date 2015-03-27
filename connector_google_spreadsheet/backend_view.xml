@@ -34,6 +34,7 @@
                             <field name="name"/>
                             <field name="active" />
                             <field name="submission_date"/>
+                            <field name="header_row"/>
                             <field name="data_row_start"/>
                             <field name="chunk_size"/>
                             <separator string="Internal settings" colspan="4"/>
