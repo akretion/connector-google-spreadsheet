@@ -210,7 +210,7 @@ def import_document(session, model_name, args):
     field_names = []
     for field in fields:
         if field and field not in special_fields:
-            field = re.sub('^(\w*).*', '\\1', field)
+            field = re.sub('(.*?)(/id|/.id)$', '\\1', field)
         field_names.append(field)
 
     skip_fields = list(set(field_names) - set(model_field_names))
