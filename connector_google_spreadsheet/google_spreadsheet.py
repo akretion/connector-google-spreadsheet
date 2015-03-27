@@ -40,7 +40,6 @@ _logger = logging.getLogger(__name__)
 
 
 def open_document(backend, document_url):
-
     # Auhentification
     private_key = base64.b64decode(backend.p12_key)
     credentials = SignedJwtAssertionCredentials(
@@ -56,13 +55,14 @@ class GoogleSpreadsheetDocument(models.Model):
     _description = 'Google Spreadsheet Document'
 
     name = fields.Char('Name', size=255, required=True)
-    model_id = fields.Many2one('ir.model', string='Odoo Model', required=True)
-    document_url = fields.Char('Documen URL', size=255, required=True)
+    model_id = fields.Many2one('ir.model', string='ERP Model', required=True)
+    document_url = fields.Char('Document URL', size=255, required=True)
     document_sheet = fields.Char(
         'Document sheet name', size=255, required=True)
     submission_date = fields.Datetime('Submission date')
+    data_row_start = fields.Integer('First row of data', default=2)
     chunk_size = fields.Integer('Chunk size', default=100)
-    active = fields.Boolean('Active')
+    active = fields.Boolean('Active', default=True)
     backend_id = fields.Many2one(
         'google.spreadsheet.backend',
         string='Google Spreadsheet Backend'
@@ -79,7 +79,7 @@ class GoogleSpreadsheetDocument(models.Model):
             'sheet_col_start': col_start,
             'sheet_col_end': col_end,
             'error_col': error_col,
-            'odoo_model': self.model_id.model,
+            'erp_model': self.model_id.model,
             'backend_id': self.backend_id.id,
         }
 
@@ -93,9 +93,6 @@ class GoogleSpreadsheetDocument(models.Model):
         backend = self.backend_id
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
-
-        row_start = 2
-        row_end = row_start
 
         first_row = sheet.row_values(1)
         if first_row[0] == 'ERRORS':
@@ -118,7 +115,15 @@ class GoogleSpreadsheetDocument(models.Model):
         col_end = len(first_row)
         eof = len(first_column_cells) + 1
 
+        row_start = 2
+        row_end = row_start
+
         for cell in first_column_cells:
+
+            while row_start < max(self.data_row_start, 2):
+                row_start += 1
+                continue
+
             chunk_size = row_end - row_start
             if chunk_size >= self.chunk_size or row_end >= eof:
                 import_args = self._prepare_import_args(
@@ -179,7 +184,7 @@ def import_document(session, model_name, args):
     col_start = args['sheet_col_start']
     col_end = args['sheet_col_end']
     error_col = args['error_col']
-    model_obj = session.pool[args['odoo_model']]
+    model_obj = session.pool[args['erp_model']]
 
     backend = session.browse('google.spreadsheet.backend', backend_id)
     document = open_document(backend, document_url)
@@ -192,8 +197,9 @@ def import_document(session, model_name, args):
     cols = col_end - col_start + 1
     rows = row_end - row_start + 1
     data = [['' for c in range(cols)] for r in range(rows)]
+
     for cell in chunk:
-        data[cell.row - 2][cell.col - col_start] = cell.value
+        data[cell.row - row_start][cell.col - col_start] = cell.value
 
     # skip all non-model fields
     special_fields = ['.id', 'id']
