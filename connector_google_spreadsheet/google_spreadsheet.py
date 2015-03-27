@@ -22,9 +22,10 @@
 
 import re
 import logging
+import base64
 
 import gspread
-import base64
+from gspread.exceptions import NoValidUrlKeyFound
 from oauth2client.client import SignedJwtAssertionCredentials
 from openerp import models, fields, api
 from openerp.exceptions import Warning
@@ -45,8 +46,12 @@ def open_document(backend, document_url):
     credentials = SignedJwtAssertionCredentials(
         backend.email, private_key, SCOPE)
     gc = gspread.authorize(credentials)
+    try:
+        document = gc.open_by_url(document_url)
+    except NoValidUrlKeyFound, err:
+        raise Warning(_('No valid key found in URL'))
 
-    document = gc.open_by_url(document_url)
+
     return document
 
 
@@ -120,8 +125,9 @@ class GoogleSpreadsheetDocument(models.Model):
 
         for cell in first_column_cells:
 
-            while row_start < max(self.data_row_start, 2):
+            if row_start < max(self.data_row_start, 2):
                 row_start += 1
+                row_end = row_start
                 continue
 
             chunk_size = row_end - row_start
