@@ -56,13 +56,16 @@ class GoogleSpreadsheetDocument(models.Model):
     _description = 'Google Spreadsheet Document'
 
     name = fields.Char('Name', size=255, required=True)
-    model_id = fields.Many2one('ir.model', string='Odoo Model', required=True)
-    document_url = fields.Char('Documen URL', size=255, required=True)
+    model_id = fields.Many2one('ir.model', string='ERP Model', required=True)
+    document_url = fields.Char('Document URL', size=255, required=True)
     document_sheet = fields.Char(
         'Document sheet name', size=255, required=True)
     submission_date = fields.Datetime('Submission date')
     chunk_size = fields.Integer('Chunk size', default=100)
-    active = fields.Boolean('Active')
+    row_start = fields.Integer(
+        default=2,
+        help="From which row cell data range begins")
+    active = fields.Boolean(default=True)
     backend_id = fields.Many2one(
         'google.spreadsheet.backend',
         string='Google Spreadsheet Backend'
@@ -94,10 +97,12 @@ class GoogleSpreadsheetDocument(models.Model):
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
 
-        row_start = 2
+        row_start = self.row_start
         row_end = row_start
 
-        first_row = sheet.row_values(1)
+        # first_row = sheet.row_values(1)
+        first_row = sheet.row_values(row_start - 1)
+        import pdb;pdb.set_trace()
         if first_row[0] == 'ERRORS':
             col_start = 2
             import_fields = first_row[1:]
@@ -109,7 +114,8 @@ class GoogleSpreadsheetDocument(models.Model):
             error_col = None
 
         # first column data cells (without header)
-        first_column_cells = sheet.col_values(col_start)[1:]
+        # first_column_cells = sheet.col_values(col_start)[1:]
+        first_column_cells = sheet.col_values(col_start)[row_start:]
         if not first_column_cells:
             message = _('Nothing to import,'
                         'the first column of data seams empty!')

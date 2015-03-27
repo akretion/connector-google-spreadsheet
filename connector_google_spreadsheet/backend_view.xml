@@ -26,15 +26,19 @@
                                   type="object"
                                   attrs="{'invisible': [('active', '=', False)]}">
                           </button>
-                          <field name="active" />
+                          <field name="active" invisible="1"/>
                           <field name="submission_date"/>
+                          <field name="row_start"/>
+                          <field name="chunk_size"/>
+                          <field name="document_sheet" string="Sheet Name"/>
                         </tree>
                         <form>
                           <group colspan="4">
                             <field name="name"/>
-                            <field name="active" />
+                            <field name="active"/>
                             <field name="submission_date"/>
                             <field name="chunk_size"/>
+                            <field name="row_start"/>
                             <separator string="Internal settings" colspan="4"/>
                             <field name="model_id"/>
                             <separator string="External setting" colspan="4"/>
