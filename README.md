@@ -1,17 +1,17 @@
 # connector-google-spreadsheet
 
-This module allows the importation of Google Spreadsheet into Odoo.
+This module allows the importation of Google Spreadsheets into Odoo.
 
 Important notes:
 ================
 - The header row is mandatory, and use the same syntax as
-  native Odoo CSV importation tool.
-- In order to upload importation errors into Google Spreadsheet
+  the native Odoo CSV importation tool.
+- In order to upload importation errors into a Google Spreadsheet,
   you must title the *first* column of your Google sheet: "ERRORS".
 - In order to determine the rows to import the program check the length
   of the first column of data. In other words if the first column of
-  *data* (not the "ERRORS" column) is empty the corresponding record
-  is not imported.
+  *data* (not the "ERRORS" column) is empty the program raise an error
+  (no data to import)
 - Empty columns (with even the header cell empty) are ignored.
 - Unknown model's columns are also ignored.
 
