@@ -27,9 +27,8 @@ import base64
 import gspread
 from gspread.exceptions import NoValidUrlKeyFound
 from oauth2client.client import SignedJwtAssertionCredentials
-from openerp import models, fields, api
+from openerp import models, fields, api, _
 from openerp.exceptions import Warning
-from openerp.tools.translate import _
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.queue.job import job, related_action
 from openerp.addons.connector.exception import FailedJobError
@@ -175,7 +174,6 @@ class GoogleSpreadsheetBackend(models.Model):
         'backend_id', string='Google spreadsheet documents',
     )
 
-
 def open_document_url(session, job):
     url = job.args[1]['document_url']
     action = {
@@ -189,6 +187,19 @@ def open_document_url(session, job):
 @job
 @related_action(action=open_document_url)
 def import_document(session, model_name, args):
+    """ Main Job for data importation
+
+    You can use a data hook per ERP model by
+    using a class method, here is an example:
+
+        class ProductProduct(models.Model):
+
+            _inherit = 'product.product'
+
+            @classmethod
+            def prepare_spreadsheet_cell(cls, row, col, value):
+                return 'my' + value + '!'
+    """
 
     backend_id = args['backend_id']
     document_url = args['document_url']
@@ -214,7 +225,14 @@ def import_document(session, model_name, args):
     data = [['' for c in range(cols)] for r in range(rows)]
 
     for cell in chunk:
-        data[cell.row - row_start][cell.col - col_start] = cell.value
+        i = cell.row - row_start
+        j = cell.col - col_start
+        if hasattr(model_obj, 'prepare_spreadsheet_cell'):
+            data[i][j] = model_obj.prepare_spreadsheet_cell(
+                cell.row, cell.col, cell.value
+            )
+        else:
+            data[i][j] = cell.value
 
     # skip all non-model fields
     special_fields = ['.id', 'id']
