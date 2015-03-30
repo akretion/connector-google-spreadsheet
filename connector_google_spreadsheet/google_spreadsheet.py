@@ -100,12 +100,14 @@ class GoogleSpreadsheetDocument(models.Model):
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
 
-        if self.header_row >= self.data_row_start:
+        header_row = max(self.header_row, 1)
+        data_row_start = max(self.data_row_start, 2)
+        if header_row >= data_row_start:
             message = _('The header row must precede data! '
                         'Check the row parameters')
             raise Warning(message)
 
-        first_row = sheet.row_values(max(self.header_row,1))
+        first_row = sheet.row_values(header_row)
         if not first_row:
             raise Warning(_('Header cells seems empty!'))
         if first_row[0] == 'ERRORS':
@@ -118,7 +120,7 @@ class GoogleSpreadsheetDocument(models.Model):
             error_col = None
 
         # first column data cells
-        first_column_cells = sheet.col_values(col_start)[self.header_row:]
+        first_column_cells = sheet.col_values(col_start)[header_row:]
         if not first_column_cells:
             message = _('Nothing to import,'
                         'the first column of data seams empty!')
@@ -132,7 +134,7 @@ class GoogleSpreadsheetDocument(models.Model):
 
         for cell in first_column_cells:
 
-            if row_start < max(self.data_row_start, 2):
+            if row_start < data_row_start:
                 row_start += 1
                 row_end = row_start
                 continue
