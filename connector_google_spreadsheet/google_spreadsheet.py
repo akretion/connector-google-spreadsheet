@@ -127,22 +127,22 @@ class GoogleSpreadsheetDocument(models.Model):
             error_col = None
 
         # first column data cells
-        first_column_cells = sheet.col_values(col_start)[header_row:]
-        if not first_column_cells:
+        first_column_data_cells = sheet.col_values(col_start)[header_row:]
+        if not first_column_data_cells:
             message = _('Nothing to import,'
                         'the first column of data seams empty!')
             raise Warning(message)
 
         col_end = len(first_row)
-        if self.data_row_end > 0:
-            eof = self.data_row_end
-        else:
-            eof = len(first_column_cells) + 1
+        eof = header_row + len(first_column_data_cells)
+
+        if data_row_end > 0:
+            eof = min(data_row_end, eof)
 
         row_start = 2
         row_end = row_start
 
-        for cell in first_column_cells:
+        for cell in first_column_data_cells:
 
             if row_start < data_row_start:
                 row_start += 1
