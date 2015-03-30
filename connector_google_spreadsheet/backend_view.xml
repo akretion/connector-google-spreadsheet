@@ -36,6 +36,7 @@
                             <field name="submission_date"/>
                             <field name="header_row"/>
                             <field name="data_row_start"/>
+                            <field name="data_row_end"/>
                             <field name="chunk_size"/>
                             <separator string="Internal settings" colspan="4"/>
                             <field name="model_id"/>

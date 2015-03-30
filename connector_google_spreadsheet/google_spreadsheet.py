@@ -66,6 +66,9 @@ class GoogleSpreadsheetDocument(models.Model):
     submission_date = fields.Datetime('Submission date')
     header_row = fields.Integer('Header', default=1)
     data_row_start = fields.Integer('First row of data', default=2)
+    data_row_end = fields.Integer('Last row of data', default=0,
+        help='0 means last row'
+    )
     chunk_size = fields.Integer('Chunk size', default=100)
     active = fields.Boolean('Active', default=True)
     backend_id = fields.Many2one(
@@ -101,8 +104,13 @@ class GoogleSpreadsheetDocument(models.Model):
 
         header_row = max(self.header_row, 1)
         data_row_start = max(self.data_row_start, 2)
+        data_row_end = max(self.data_row_end, 0)
         if header_row >= data_row_start:
             message = _('The header row must precede data! '
+                        'Check the row parameters')
+            raise Warning(message)
+        if data_row_end and data_row_end < data_row_start:
+            message = _('The data row start must precede data row end! '
                         'Check the row parameters')
             raise Warning(message)
 
@@ -126,7 +134,10 @@ class GoogleSpreadsheetDocument(models.Model):
             raise Warning(message)
 
         col_end = len(first_row)
-        eof = len(first_column_cells) + 1
+        if self.data_row_end > 0:
+            eof = self.data_row_end
+        else:
+            eof = len(first_column_cells) + 1
 
         row_start = 2
         row_end = row_start
@@ -149,8 +160,11 @@ class GoogleSpreadsheetDocument(models.Model):
                     error_col
                 )
                 import_document.delay(session, self._name, import_args)
-                row_end += 1
-                row_start = row_end
+                if row_end < eof:
+                    row_end += 1
+                    row_start = row_end
+                else:
+                    break
             else:
                 row_end += 1
 
@@ -184,22 +198,24 @@ def open_document_url(session, job):
     return action
 
 
+#
+#  Main Job for data importation
+#
+#    You can use a data hook per ERP model by
+#    using a class method, here is an example:
+#
+#        class ProductProduct(models.Model):
+#
+#            _inherit = 'product.product'
+#
+#            @classmethod
+#            def prepare_spreadsheet_cell(cls, row, col, value):
+#                return 'my' + value + '!'
+#
+
 @job
 @related_action(action=open_document_url)
 def import_document(session, model_name, args):
-    """ Main Job for data importation
-
-    You can use a data hook per ERP model by
-    using a class method, here is an example:
-
-        class ProductProduct(models.Model):
-
-            _inherit = 'product.product'
-
-            @classmethod
-            def prepare_spreadsheet_cell(cls, row, col, value):
-                return 'my' + value + '!'
-    """
 
     backend_id = args['backend_id']
     document_url = args['document_url']
