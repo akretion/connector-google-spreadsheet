@@ -58,17 +58,33 @@ class GoogleSpreadsheetDocument(models.Model):
     _name = 'google.spreadsheet.document'
     _description = 'Google Spreadsheet Document'
 
-    name = fields.Char('Name', size=255, required=True)
-    model_id = fields.Many2one('ir.model', string='ERP Model', required=True)
-    document_url = fields.Char('Document URL', size=255, required=True)
+    name = fields.Char('Name', required=True)
+    model_id = fields.Many2one(
+        'ir.model',
+        string='Model',
+        required=True,
+        help="ERP Model")
+    document_url = fields.Char(
+        'URL',
+        required=True,
+        help="URL of the spreadsheet")
     document_sheet = fields.Char(
-        'Document sheet name', size=255, required=True)
+        'Sheet Name',
+        required=True,
+        help="Document tab name")
     submission_date = fields.Datetime('Submission date')
-    header_row = fields.Integer('Header', default=1)
-    data_row_start = fields.Integer('First row of data', default=2)
-    data_row_end = fields.Integer('Last row of data', default=0,
-        help='0 means last row'
-    )
+    header_row = fields.Integer(
+        'Header',
+        default=1,
+        help="Columns name position")
+    data_row_start = fields.Integer(
+        string='First Row',
+        default=2,
+        help="First row of data")
+    data_row_end = fields.Integer(
+        string='Last Row',
+        default=0,
+        help="Last row of data: 0 means last row")
     chunk_size = fields.Integer('Chunk size', default=100)
     active = fields.Boolean('Active', default=True)
     backend_id = fields.Many2one(
