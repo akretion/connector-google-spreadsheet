@@ -36,7 +36,11 @@ from openerp.addons.connector.exception import FailedJobError
 
 SCOPE = ['https://spreadsheets.google.com/feeds',
          'https://docs.google.com/feeds']
+
 FIELDS_RECURSION_LIMIT = 2
+SHEET_APP = 'Spreadsheet Import'
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -49,8 +53,7 @@ def open_document(backend, document_url):
     try:
         document = gc.open_by_url(document_url)
     except NoValidUrlKeyFound:
-        raise Warning(_('No valid key found in URL'))
-
+        raise Warning(SHEET_APP, _('Google Drive: No valid key found in URL'))
     return document
 
 
@@ -107,13 +110,14 @@ class GoogleSpreadsheetDocument(models.Model):
             'backend_id': self.backend_id.id,
         }
 
-    @api.one
+    @api.multi
     def run(self):
         session = ConnectorSession(
             self.env.cr,
             self.env.uid,
             self.env.context,
         )
+        task_result = []
         backend = self.backend_id
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
@@ -122,17 +126,19 @@ class GoogleSpreadsheetDocument(models.Model):
         data_row_start = max(self.data_row_start, 2)
         data_row_end = max(self.data_row_end, 0)
         if header_row >= data_row_start:
-            message = _('The header row must precede data! '
-                        'Check the row parameters')
+            message = (SHEET_APP,
+                       _('The header row must precede data! '
+                         'Check the row parameters'))
             raise Warning(message)
         if data_row_end and data_row_end < data_row_start:
-            message = _('The data row start must precede data row end! '
-                        'Check the row parameters')
+            message = (SHEET_APP,
+                       _('The data row start must precede data row end! '
+                         'Check the row parameters'))
             raise Warning(message)
 
         first_row = [c or '' for c in sheet.row_values(header_row)]
         if not first_row:
-            raise Warning(_('Header cells seems empty!'))
+            raise Warning(SHEET_APP, _('Header cells seems empty!'))
         if first_row[0] == 'ERRORS':
             col_start = 2
             import_fields = first_row[1:]
@@ -145,8 +151,9 @@ class GoogleSpreadsheetDocument(models.Model):
         # first column data cells
         first_column_data_cells = sheet.col_values(col_start)[header_row:]
         if not first_column_data_cells:
-            message = _('Nothing to import,'
-                        'the first column of data seams empty!')
+            message = (SHEET_APP,
+                       _('Nothing to import,'
+                         'the first column of data seams empty!'))
             raise Warning(message)
 
         col_end = len(first_row)
@@ -176,6 +183,9 @@ class GoogleSpreadsheetDocument(models.Model):
                     error_col
                 )
                 import_document.delay(session, self._name, import_args)
+                task_result.append(
+                    _("import job created with from sheet row %s to %s")
+                    % (row_start, row_end))
                 if row_end < eof:
                     row_end += 1
                     row_start = row_end
@@ -185,6 +195,17 @@ class GoogleSpreadsheetDocument(models.Model):
                 row_end += 1
 
         self.submission_date = fields.Datetime.now()
+        if task_result:
+            title = _("Executed action ")
+            text = " '%s'\n%s" % (self.name, '\n'.join(task_result))
+            vals = {'task_result': title + text}
+            self.backend_id.write(vals)
+
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
 
 class GoogleSpreadsheetBackend(models.Model):
@@ -199,6 +220,11 @@ class GoogleSpreadsheetBackend(models.Model):
     email = fields.Char('Google Email')
     p12_key = fields.Binary('Google P12 key')
     version = fields.Selection(selection=[('3.0', 'Version 3')])
+    task_result = fields.Text(
+        'Last Task Result',
+        readonly=True,
+        help="Here is the log of last action occured during "
+             "the importation process")
     document_ids = fields.One2many(
         'google.spreadsheet.document',
         'backend_id', string='Google spreadsheet documents',
