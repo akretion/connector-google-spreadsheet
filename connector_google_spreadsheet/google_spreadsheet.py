@@ -181,7 +181,7 @@ class GoogleSpreadsheetDocument(models.Model):
                 )
                 import_document.delay(session, self._name, import_args)
                 task_result.append(
-                    _("import job created with from sheet row %s to %s")
+                    _("import job created (sheet row %s to %s)")
                     % (row_start, row_end))
                 if row_end < eof:
                     row_end += 1
