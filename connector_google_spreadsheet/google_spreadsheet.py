@@ -126,15 +126,13 @@ class GoogleSpreadsheetDocument(models.Model):
         data_row_start = max(self.data_row_start, 2)
         data_row_end = max(self.data_row_end, 0)
         if header_row >= data_row_start:
-            message = (SHEET_APP,
-                       _('The header row must precede data! '
-                         'Check the row parameters'))
-            raise Warning(message)
+            message = _('The header row must precede data! '
+                        'Check the row parameters')
+            raise Warning(SHEET_APP, message)
         if data_row_end and data_row_end < data_row_start:
-            message = (SHEET_APP,
-                       _('The data row start must precede data row end! '
-                         'Check the row parameters'))
-            raise Warning(message)
+            message = _('The data row start must precede data row end! '
+                        'Check the row parameters')
+            raise Warning(SHEET_APP, message)
 
         first_row = [c or '' for c in sheet.row_values(header_row)]
         if not first_row:
@@ -151,10 +149,9 @@ class GoogleSpreadsheetDocument(models.Model):
         # first column data cells
         first_column_data_cells = sheet.col_values(col_start)[header_row:]
         if not first_column_data_cells:
-            message = (SHEET_APP,
-                       _('Nothing to import,'
-                         'the first column of data seams empty!'))
-            raise Warning(message)
+            message = _('Nothing to import,'
+                        'the first column of data seams empty!')
+            raise Warning(SHEET_APP, message)
 
         col_end = len(first_row)
         eof = header_row + len(first_column_data_cells)
