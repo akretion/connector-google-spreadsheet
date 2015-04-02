@@ -28,6 +28,7 @@ Authors:
 ========
 - Copyright (C) 2015-TODAY Akretion (http://www.akretion.com).
 - Sylvain Calador <sylvain.calador@akretion.com>
+- David Beal <david.beal@akretion.com>
 
 License:
 ========

@@ -21,6 +21,7 @@
                           context="{'google_spreadsheet_id': active_id}">
                         <tree>
                           <field name="name"/>
+                          <field name="document_sheet"/>
                           <button name="run" string="Run"
                                   icon="gtk-go-forward"
                                   type="object"
@@ -28,20 +29,28 @@
                           </button>
                           <field name="active" invisible="1"/>
                           <field name="submission_date"/>
+                          <field name="data_row_start"/>
+                          <field name="data_row_end"/>
+                          <field name="chunk_size"/>
                         </tree>
                         <form>
                           <group colspan="4">
-                            <field name="name"/>
-                            <field name="active" />
-                            <field name="submission_date"/>
-                            <field name="header_row"/>
-                            <field name="data_row_start"/>
-                            <field name="data_row_end"/>
-                            <field name="chunk_size"/>
-                            <separator string="Internal settings" colspan="4"/>
-                            <field name="model_id"/>
-                            <separator string="External setting" colspan="4"/>
-                            <field name="document_url"/>
+                            <group>
+                              <field name="name"/>
+                              <field name="active" />
+                              <field name="submission_date"/>
+                              <field name="model_id"/>
+                              <field name="chunk_size"/>
+                            </group>
+                            <group>
+                              <separator string="Data Position in Sheet" colspan="4"/>
+                              <field name="header_row"/>
+                              <field name="data_row_start"/>
+                              <field name="data_row_end"/>
+                            </group>
+                            <separator string="Spreadsheet Location" colspan="4"/>
+                            <label for="document_url"/>
+                            <field name="document_url" colspan="4" nolabel="1"/>
                             <field name="document_sheet"/>
                           </group>
                         </form>
