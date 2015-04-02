@@ -20,9 +20,10 @@
 #
 ###############################################################################
 
-import re
 import logging
 import base64
+import operator
+import itertools
 
 import gspread
 from gspread.exceptions import NoValidUrlKeyFound
@@ -35,7 +36,7 @@ from openerp.addons.connector.exception import FailedJobError
 
 SCOPE = ['https://spreadsheets.google.com/feeds',
          'https://docs.google.com/feeds']
-
+FIELDS_RECURSION_LIMIT = 2
 _logger = logging.getLogger(__name__)
 
 
@@ -47,9 +48,8 @@ def open_document(backend, document_url):
     gc = gspread.authorize(credentials)
     try:
         document = gc.open_by_url(document_url)
-    except NoValidUrlKeyFound, err:
+    except NoValidUrlKeyFound:
         raise Warning(_('No valid key found in URL'))
-
 
     return document
 
@@ -67,8 +67,7 @@ class GoogleSpreadsheetDocument(models.Model):
     header_row = fields.Integer('Header', default=1)
     data_row_start = fields.Integer('First row of data', default=2)
     data_row_end = fields.Integer('Last row of data', default=0,
-        help='0 means last row'
-    )
+                                  help='0 means last row')
     chunk_size = fields.Integer('Chunk size', default=100)
     active = fields.Boolean('Active', default=True)
     backend_id = fields.Many2one(
@@ -114,7 +113,7 @@ class GoogleSpreadsheetDocument(models.Model):
                         'Check the row parameters')
             raise Warning(message)
 
-        first_row = sheet.row_values(header_row)
+        first_row = [c or '' for c in sheet.row_values(header_row)]
         if not first_row:
             raise Warning(_('Header cells seems empty!'))
         if first_row[0] == 'ERRORS':
@@ -188,6 +187,7 @@ class GoogleSpreadsheetBackend(models.Model):
         'backend_id', string='Google spreadsheet documents',
     )
 
+
 def open_document_url(session, job):
     url = job.args[1]['document_url']
     action = {
@@ -198,24 +198,30 @@ def open_document_url(session, job):
     return action
 
 
-#
-#  Main Job for data importation
-#
-#    You can use a data hook per ERP model by
-#    using a class method, here is an example:
-#
-#        class ProductProduct(models.Model):
-#
-#            _inherit = 'product.product'
-#
-#            @classmethod
-#            def prepare_spreadsheet_cell(cls, row, col, value):
-#                return 'my' + value + '!'
-#
+def convert_import_data(rows_to_import, fields):
+
+    indices = [index for index, field in enumerate(fields) if field]
+
+    if len(indices) == 1:
+        mapper = lambda row: [row[indices[0]]]
+    else:
+        mapper = operator.itemgetter(*indices)
+
+    import_fields = filter(None, fields)
+    data = [
+        row for row in itertools.imap(mapper, rows_to_import)
+        if any(row)
+    ]
+
+    return data, import_fields
+
 
 @job
 @related_action(action=open_document_url)
 def import_document(session, model_name, args):
+
+    import_obj = session.pool['base_import.import']
+    model_obj = session.pool[args['erp_model']]
 
     backend_id = args['backend_id']
     document_url = args['document_url']
@@ -226,7 +232,6 @@ def import_document(session, model_name, args):
     col_start = args['sheet_col_start']
     col_end = args['sheet_col_end']
     error_col = args['error_col']
-    model_obj = session.pool[args['erp_model']]
 
     backend = session.browse('google.spreadsheet.backend', backend_id)
     document = open_document(backend, document_url)
@@ -243,37 +248,36 @@ def import_document(session, model_name, args):
     for cell in chunk:
         i = cell.row - row_start
         j = cell.col - col_start
-        if hasattr(model_obj, 'prepare_spreadsheet_cell'):
-            data[i][j] = model_obj.prepare_spreadsheet_cell(
-                cell.row, cell.col, cell.value
-            )
+        data[i][j] = cell.value
+
+    available_fields = import_obj.get_fields(
+        session.cr,
+        session.uid,
+        model_obj._name,
+        context=session.context,
+        depth=FIELDS_RECURSION_LIMIT
+    )
+
+    headers_raw = iter([fields])
+    headers_raw, headers_match = import_obj._match_headers(
+        headers_raw,
+        available_fields,
+        options={'headers': True},
+    )
+
+    fields = [False] * len(headers_match)
+    for indice, header in headers_match.items():
+        if isinstance(header, list) and len(header):
+            fields[indice] = '/'.join(header)
         else:
-            data[i][j] = cell.value
+            fields[indice] = False
 
-    # skip all non-model fields
-    special_fields = ['.id', 'id']
-
-    model_field_names = [k for k, v in model_obj._all_columns.iteritems()]
-    model_field_names.extend(special_fields)
-
-    field_names = []
-    for field in fields:
-        if field and field not in special_fields:
-            field = re.sub('(.*?)(/id|/.id)$', '\\1', field)
-        field_names.append(field)
-
-    skip_fields = list(set(field_names) - set(model_field_names))
-    skip_indexes = [i for i, f in enumerate(fields) if f in skip_fields]
-
-    for index in sorted(skip_indexes, reverse=True):
-        del fields[index]
-        for row in data:
-            del row[index]
+    data, import_fields = convert_import_data(data, fields)
 
     # import the chunk of clean data
     result = model_obj.load(session.cr,
                             session.uid,
-                            fields,
+                            import_fields,
                             data,
                             context=session.context)
 
