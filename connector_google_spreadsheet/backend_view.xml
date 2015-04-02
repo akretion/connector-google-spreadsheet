@@ -56,6 +56,10 @@
                         </form>
                       </field>
                     </group>
+                    <group col="1">
+                      <label for="task_result"/>
+                      <field name="task_result" nolabel="1"/>
+                    </group>
                   </page>
                 </notebook>
               </sheet>
