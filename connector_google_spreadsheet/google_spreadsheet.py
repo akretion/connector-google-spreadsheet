@@ -200,16 +200,26 @@ class GoogleSpreadsheetDocument(models.Model):
                 row_end += 1
 
         self.submission_date = fields.Datetime.now()
+        title = _("Executed task ")
         if task_result:
-            title = _("Executed action ")
             text = " '%s'\n%s" % (self.name, '\n'.join(task_result))
             vals = {'task_result': title + text}
             self.backend_id.write(vals)
+        else:
+            title += " '%s'\nNo created job for unknow reason" % self.name
+            vals = {'task_result': title}
+            self.backend_id.write(vals)
 
         self.ensure_one()
+        view_id = self.env.ref('connector_google_spreadsheet.'
+                               'view_google_spreadsheet_backend_form')
         return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
+            'res_model': 'google.spreadsheet.backend',
+            'view_id': view_id.id,
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_id': self.backend_id.id,
+            'target': 'current',
         }
 
 
