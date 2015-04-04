@@ -25,6 +25,7 @@ import base64
 import operator
 import itertools
 
+from httplib2 import ServerNotFoundError
 import gspread
 from gspread.exceptions import NoValidUrlKeyFound
 from oauth2client.client import SignedJwtAssertionCredentials
@@ -49,7 +50,12 @@ def open_document(backend, document_url):
     private_key = base64.b64decode(backend.p12_key)
     credentials = SignedJwtAssertionCredentials(
         backend.email, private_key, SCOPE)
-    gc = gspread.authorize(credentials)
+    try:
+        gc = gspread.authorize(credentials)
+    except ServerNotFoundError:
+        raise Warning(SHEET_APP, _("Check your internet connexion.\n"
+                                   "Impossible to establish a connection "
+                                   "with Google Services"))
     try:
         document = gc.open_by_url(document_url)
     except NoValidUrlKeyFound:
