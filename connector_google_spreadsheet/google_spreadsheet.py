@@ -202,12 +202,15 @@ class GoogleSpreadsheetDocument(models.Model):
         self.submission_date = fields.Datetime.now()
         title = _("Executed task ")
         if task_result:
-            text = " '%s'\n%s" % (self.name, '\n'.join(task_result))
+            text = " '%s'\n%s, eof '%s'" % (self.name, '\n'.join(task_result), eof)
             vals = {'task_result': title + text}
             self.backend_id.write(vals)
         else:
-            title += " '%s'\nNo created job for unknow reason" % self.name
-            vals = {'task_result': title}
+            title += " '%s'\nNo created job" % self.name
+            alert_mess = (_("\nCheck coherence between chunk size '%s' "
+                            "and real end of file '%s'")
+                          % (self.chunk_size, eof))
+            vals = {'task_result': title + alert_mess}
             self.backend_id.write(vals)
 
         self.ensure_one()
