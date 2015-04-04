@@ -60,6 +60,7 @@ def open_document(backend, document_url):
 class GoogleSpreadsheetDocument(models.Model):
     _name = 'google.spreadsheet.document'
     _description = 'Google Spreadsheet Document'
+    _order = 'sequence ASC'
 
     name = fields.Char('Name', required=True)
     model_id = fields.Many2one(
@@ -89,7 +90,8 @@ class GoogleSpreadsheetDocument(models.Model):
         default=0,
         help="Last row of data: 0 means last row")
     chunk_size = fields.Integer('Chunk size', default=100)
-    active = fields.Boolean('Active', default=True)
+    active = fields.Boolean(default=True)
+    sequence = fields.Integer()
     backend_id = fields.Many2one(
         'google.spreadsheet.backend',
         string='Google Spreadsheet Backend'
