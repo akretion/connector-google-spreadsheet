@@ -167,18 +167,18 @@ class GoogleSpreadsheetDocument(models.Model):
         if data_row_end > 0:
             eof = min(data_row_end, eof)
 
-        row_start = 2
+        row_start = header_row + 1
         row_end = row_start
-
         for cell in first_column_data_cells:
-
             if row_start < data_row_start:
                 row_start += 1
                 row_end = row_start
                 continue
 
             chunk_size = row_end - row_start
-            if chunk_size >= self.chunk_size or row_end >= eof:
+
+            if chunk_size >= self.chunk_size or row_end == eof:
+
                 import_args = self._prepare_import_args(
                     import_fields,
                     row_start,
@@ -191,11 +191,8 @@ class GoogleSpreadsheetDocument(models.Model):
                 task_result.append(
                     _("import job created (sheet row %s to %s)")
                     % (row_start, row_end))
-                if row_end < eof:
-                    row_end += 1
-                    row_start = row_end
-                else:
-                    break
+                row_end += 1
+                row_start = row_end
             else:
                 row_end += 1
 
