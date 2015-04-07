@@ -1,0 +1,296 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* connector_google_spreadsheet
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-07 13:11+0000\n"
+"PO-Revision-Date: 2015-04-07 15:33+0100\n"
+"Last-Translator: David BEAL <david.beal@akretion.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:207
+#, python-format
+msgid ""
+"\n"
+"Check coherence between chunk size '%s' and real end of file '%s'"
+msgstr ""
+"\n"
+"Check coherence between chunk size '%s' and real end of file '%s'"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,active:0
+msgid "Active"
+msgstr "Active"
+
+#. module: connector_google_spreadsheet
+#: model:ir.ui.menu,name:connector_google_spreadsheet.menu_google_spreadsheet_backend
+msgid "Backends"
+msgstr "Backends"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:56
+#, python-format
+msgid ""
+"Check your internet connexion.\n"
+"Impossible to establish a connection with Google Services"
+msgstr ""
+"Vérifier votre connexion internet.\n"
+"Impossible d'établir une connexion avec les Services Google."
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,chunk_size:0
+msgid "Chunk size"
+msgstr "Taille Extraction ligne"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,header_row:0
+msgid "Columns name position"
+msgstr "Columns name position"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,create_uid:0
+#: field:google.spreadsheet.document,create_uid:0
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,create_date:0
+#: field:google.spreadsheet.document,create_date:0
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Data Position in Sheet"
+msgstr "Position des données dans la feuille"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,document_sheet:0
+msgid "Document tab name"
+msgstr "Nom de l'onglet du document"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,model_id:0
+msgid "ERP Model"
+msgstr "Modèle de l'ERP"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:200
+#, python-format
+msgid "Executed task "
+msgstr "Tâche executée"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,data_row_start:0
+msgid "First Row"
+msgstr "Première Ligne"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,data_row_start:0
+msgid "First row of data"
+msgstr "Première ligne de données"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Google Account"
+msgstr "Compte Google"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:62
+#, python-format
+msgid "Google Drive: No valid key found in URL"
+msgstr "Google Drive: Pas de clé valide trouvé à cette URL"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,email:0
+msgid "Google Email"
+msgstr "Google Email"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,p12_key:0
+msgid "Google P12 key"
+msgstr "Clé Google P12"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+#: model:ir.ui.menu,name:connector_google_spreadsheet.menu_google_spreadsheet_root
+msgid "Google Spreadsheet"
+msgstr "Feuille de calcul Google"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+#: field:google.spreadsheet.document,backend_id:0
+#: model:ir.model,name:connector_google_spreadsheet.model_google_spreadsheet_backend
+msgid "Google Spreadsheet Backend"
+msgstr "Backend Feuille de calcul Google"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_tree
+msgid "Google Spreadsheet Backends"
+msgstr "Backends Feuille de calcul Google"
+
+#. module: connector_google_spreadsheet
+#: model:ir.model,name:connector_google_spreadsheet.model_google_spreadsheet_document
+msgid "Google Spreadsheet Document"
+msgstr "Document Google Spreadsheet"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Google Spreadsheet configuration"
+msgstr "Configuration feuille de calcul Google"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,document_ids:0
+msgid "Google spreadsheet documents"
+msgstr "Documents feuille de calcul Google"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,header_row:0
+msgid "Header"
+msgstr "Entête"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:147
+#, python-format
+msgid "Header cells seems empty!"
+msgstr "Les cellules d'entête semble être vide!"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.backend,task_result:0
+msgid "Here is the log of last action occured during the importation process"
+msgstr "Voici les log de la dernière action pendant le process d'importation."
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,id:0
+#: field:google.spreadsheet.document,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,data_row_end:0
+msgid "Last Row"
+msgstr "Dernière Ligne"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,task_result:0
+msgid "Last Task Result"
+msgstr "Resultat de la dernière Tâche"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,write_uid:0
+#: field:google.spreadsheet.document,write_uid:0
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,write_date:0
+#: field:google.spreadsheet.document,write_date:0
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,data_row_end:0
+msgid "Last row of data: 0 means last row"
+msgstr "Dernière ligne de données: 0 veut dire dernière ligne"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,model_id:0
+msgid "Model"
+msgstr "Modèle"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,name:0
+#: field:google.spreadsheet.document,name:0
+msgid "Name"
+msgstr "Nom"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:160
+#, python-format
+msgid "Nothing to import,the first column of data seams empty!"
+msgstr "Rien à importer, la première colonne de données semble vide !"
+
+#. module: connector_google_spreadsheet
+#: model:ir.actions.client,name:connector_google_spreadsheet.action_google_spreadsheet_backend
+msgid "Open Google Spreadsheet backend menu"
+msgstr "Open Google Spreadsheet backend menu"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Run"
+msgstr "Lancer"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,sequence:0
+msgid "Sequence"
+msgstr "Sequence"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,document_sheet:0
+msgid "Sheet Name"
+msgstr "Nom de feuille"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Spreadsheet Location"
+msgstr "Localisation de la Feuille"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,submission_date:0
+msgid "Submission date"
+msgstr "Date de soumission"
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Tasks"
+msgstr "Tâches"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:141
+#, python-format
+msgid "The data row start must precede data row end! Check the row parameters"
+msgstr ""
+"La ligne de données de départ doit précéder la ligne de données final! "
+"Vérifiez les paramètres des lignes."
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:137
+#, python-format
+msgid "The header row must precede data! Check the row parameters"
+msgstr ""
+"La ligne d'entête doit précéder les données! Vérifiez les paramètres de "
+"lignes"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.document,document_url:0
+msgid "URL"
+msgstr "URL"
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,document_url:0
+msgid "URL of the spreadsheet"
+msgstr "URL de la feuille de calcul"
+
+#. module: connector_google_spreadsheet
+#: field:google.spreadsheet.backend,version:0
+msgid "Version"
+msgstr "Version"
+
+#. module: connector_google_spreadsheet
+#: selection:google.spreadsheet.backend,version:0
+msgid "Version 3"
+msgstr "Version 3"
+
+#. module: connector_google_spreadsheet
+#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:192
+#, python-format
+msgid "import job created (sheet row %s to %s)"
+msgstr "Job d'import créé (ligne de la feuille %s à %s)"

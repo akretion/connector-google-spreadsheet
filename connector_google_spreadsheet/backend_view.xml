@@ -24,7 +24,7 @@
                       <field name="document_ids" nolabel="1"
                           context="{'google_spreadsheet_id': active_id}">
                         <tree>
-                          <field name="sequence"/>
+                          <field name="sequence" widget="handle"/>
                           <field name="name"/>
                           <field name="document_sheet"/>
                           <button name="run" string="Run"
