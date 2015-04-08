@@ -191,6 +191,10 @@ class GoogleSpreadsheetDocument(models.Model):
                 task_result.append(
                     _("import job created (sheet row %s to %s)")
                     % (row_start, row_end))
+
+                if row_end == eof:
+                    break
+
                 row_end += 1
                 row_start = row_end
             else:
