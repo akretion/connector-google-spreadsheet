@@ -53,7 +53,7 @@ def open_document(backend, document_url):
     try:
         gc = gspread.authorize(credentials)
     except ServerNotFoundError:
-        raise Warning(SHEET_APP, _("Check your internet connexion.\n"
+        raise Warning(SHEET_APP, _("Check your internet connection.\n"
                                    "Impossible to establish a connection "
                                    "with Google Services"))
     try:
