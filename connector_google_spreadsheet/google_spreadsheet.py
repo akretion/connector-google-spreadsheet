@@ -191,7 +191,7 @@ class GoogleSpreadsheetDocument(models.Model):
                     stop = sheet.get_addr_int(sheet.row_count, col_end)
                     eof_chunk = sheet.range(start + ':' + stop)
                     for cell in eof_chunk:
-                        if cell.value:
+                        if cell.value and cell.row > row_end:
                             row_end = cell.row
                             eof = row_end
 
