@@ -179,6 +179,22 @@ class GoogleSpreadsheetDocument(models.Model):
 
             if chunk_size >= self.chunk_size or row_end == eof:
 
+                # extend the chunk for one2many cases
+                if not cell and row_end != eof:
+                    row_end += 1
+                    row_start = row_end
+                    continue
+
+                # extend the chunk for one2many in eof
+                if row_end == eof:
+                    start = sheet.get_addr_int(row_end+1, col_start)
+                    stop = sheet.get_addr_int(sheet.row_count, col_end)
+                    eof_chunk = sheet.range(start + ':' + stop)
+                    for cell in eof_chunk:
+                        if cell.value:
+                            row_end = cell.row
+                            eof = row_end
+
                 import_args = self._prepare_import_args(
                     import_fields,
                     row_start,
@@ -187,6 +203,7 @@ class GoogleSpreadsheetDocument(models.Model):
                     col_end,
                     error_col
                 )
+
                 import_document.delay(session, self._name,
                                       import_args, priority=self.sequence)
                 task_result.append(
@@ -204,7 +221,8 @@ class GoogleSpreadsheetDocument(models.Model):
         self.submission_date = fields.Datetime.now()
         title = _("Executed task ")
         if task_result:
-            text = " '%s'\n%s, eof '%s'" % (self.name, '\n'.join(task_result), eof)
+            text = " '%s'\n%s, eof '%s'" % (
+                self.name, '\n'.join(task_result), eof)
             vals = {'task_result': title + text}
             self.backend_id.write(vals)
         else:
