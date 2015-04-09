@@ -186,8 +186,8 @@ class GoogleSpreadsheetDocument(models.Model):
                     continue
 
                 # extend the chunk for one2many in eof
-                if row_end == eof:
-                    start = sheet.get_addr_int(row_end+1, col_start)
+                if row_end == eof and sheet.row_count > eof:
+                    start = sheet.get_addr_int(eof+1, col_start)
                     stop = sheet.get_addr_int(sheet.row_count, col_end)
                     eof_chunk = sheet.range(start + ':' + stop)
                     for cell in eof_chunk:
