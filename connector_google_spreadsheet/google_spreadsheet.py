@@ -145,7 +145,7 @@ class GoogleSpreadsheetDocument(models.Model):
         first_row = [c or '' for c in sheet.row_values(header_row)]
         if not first_row:
             raise Warning(SHEET_APP, _('Header cells seems empty!'))
-        if first_row[0] == 'ERRORS':
+        if first_row[0].lower() in ('error', 'errors'):
             col_start = 2
             import_fields = first_row[1:]
             error_col = 1
