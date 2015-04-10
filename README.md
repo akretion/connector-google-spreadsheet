@@ -14,6 +14,8 @@ Important notes:
   (no data to import)
 - Empty columns (with even the header cell empty) are ignored.
 - Unknown model's columns are also ignored.
+- Chunk logic handle the one2many cases if the first column of data
+  represent the relation (root entries not blank and child entries blank)
 
 Dependencies:
 =============
