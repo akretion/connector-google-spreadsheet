@@ -162,38 +162,48 @@ class GoogleSpreadsheetDocument(models.Model):
             raise Warning(SHEET_APP, message)
 
         col_end = len(first_row)
+
         eof = header_row + len(first_column_data_cells)
 
         if data_row_end > 0:
             eof = min(data_row_end, eof)
 
+
+        # chunks logic
+
         row_start = header_row + 1
         row_end = row_start
-        for cell in first_column_data_cells:
+        cells = first_column_data_cells
+
+        # calculate "real" end of "file" (eof)
+        if sheet.row_count > eof:
+            start = sheet.get_addr_int(eof+1, col_start)
+            stop = sheet.get_addr_int(sheet.row_count, col_end)
+            eof_chunk = sheet.range(start + ':' + stop)
+            for cell in eof_chunk:
+                if cell.value and cell.row > eof:
+                    eof = cell.row
+                    # append missing cells (empty)
+                    cells.append(cell.value)
+
+        indexes = [
+            i-1 for i, cell in enumerate(cells) if cell and i
+        ]
+
+        def cut_allowed(index, indexes):
+            return index in indexes or index >= max(indexes or [0])
+
+        # Iterate on first data column
+        for i, cell in enumerate(cells):
+
             if row_start < data_row_start:
                 row_start += 1
                 row_end = row_start
                 continue
 
-            chunk_size = row_end - row_start
-
-            if chunk_size >= self.chunk_size or row_end == eof:
-
-                # extend the chunk for one2many cases
-                if not cell and row_end != eof:
-                    row_end += 1
-                    row_start = row_end
-                    continue
-
-                # extend the chunk for one2many in eof
-                if row_end == eof and sheet.row_count > eof:
-                    start = sheet.get_addr_int(eof+1, col_start)
-                    stop = sheet.get_addr_int(sheet.row_count, col_end)
-                    eof_chunk = sheet.range(start + ':' + stop)
-                    for cell in eof_chunk:
-                        if cell.value and cell.row > row_end:
-                            row_end = cell.row
-                            eof = row_end
+            size = row_end - row_start
+            if cut_allowed(i, indexes) \
+                    and size >= self.chunk_size or row_end == eof:
 
                 import_args = self._prepare_import_args(
                     import_fields,
@@ -218,6 +228,7 @@ class GoogleSpreadsheetDocument(models.Model):
             else:
                 row_end += 1
 
+        # log result (job creation)
         self.submission_date = fields.Datetime.now()
         title = _("Executed task ")
         if task_result:
