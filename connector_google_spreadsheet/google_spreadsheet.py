@@ -175,7 +175,8 @@ class GoogleSpreadsheetDocument(models.Model):
         cells = first_column_data_cells
 
         # calculate "real" end of "file" (eof)
-        if sheet.row_count > eof:
+        # (if the user has not specified the data row end)
+        if not data_row_end and sheet.row_count > eof:
             start = sheet.get_addr_int(eof+1, col_start)
             stop = sheet.get_addr_int(sheet.row_count, col_end)
             eof_chunk = sheet.range(start + ':' + stop)
