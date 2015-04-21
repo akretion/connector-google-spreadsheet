@@ -168,7 +168,6 @@ class GoogleSpreadsheetDocument(models.Model):
         if data_row_end > 0:
             eof = min(data_row_end, eof)
 
-
         # chunks logic
 
         row_start = header_row + 1
@@ -374,27 +373,36 @@ def import_document(session, model_name, args):
                             context=session.context)
 
     # clear previous errors
+    error_cells = None
     if error_col is not None:
         start = sheet.get_addr_int(row_start, error_col)
         stop = sheet.get_addr_int(row_end, error_col)
         error_cells = sheet.range(start + ':' + stop)
         for cell in error_cells:
             cell.value = ''
-        sheet.update_cells(error_cells)
 
     # log errors
     errors = False
     messages = []
     for m in result['messages']:
-        row = row_start + m['record']
-        message = m['message']
-        message_type = m['type']
-        messages.append('%s:line %i: %s' % (message_type, row, message))
-        if message_type == 'error':
-            errors = True
-            if error_col is not None:
-                error_cell = sheet.get_addr_int(row, error_col)
-                sheet.update_acell(error_cell, message)
+
+        row_from = row_start + m['rows']['from']
+        row_to = row_start + m['rows']['to']
+
+        for row in range(row_from, row_to+1):
+            message = m['message']
+            message_type = m['type']
+            messages.append('%s:line %i: %s' % (message_type, row, message))
+            if message_type == 'error':
+                errors = True
+                if error_cells:
+                    for cell in error_cells:
+                        if cell.row == row:
+                            cell.value = message
+                            break
+
+    if error_cells:
+        sheet.update_cells(error_cells)
 
     if errors:
         raise FailedJobError(messages)
