@@ -213,9 +213,10 @@ class GoogleSpreadsheetDocument(models.Model):
                     col_end,
                     error_col
                 )
-
+                description = "Spreadsheet import: %s" % self.name
                 import_document.delay(session, self._name,
-                                      import_args, priority=self.sequence)
+                                      import_args, priority=self.sequence,
+                                      description=description)
                 task_result.append(
                     _("import job created (sheet row %s to %s)")
                     % (row_start, row_end))
