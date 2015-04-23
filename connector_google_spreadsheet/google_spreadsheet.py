@@ -280,6 +280,13 @@ class GoogleSpreadsheetBackend(models.Model):
         'backend_id', string='Google spreadsheet documents',
     )
 
+    @api.model
+    def format_spreadsheet_error(self, message):
+        """ Used by the import_document function
+            You may override it to customize your messages
+        """
+        return message
+
 
 def open_document_url(session, job):
     url = job.args[1]['document_url']
@@ -400,7 +407,7 @@ def import_document(session, model_name, args):
                 if error_cells:
                     for cell in error_cells:
                         if cell.row == row:
-                            cell.value = message
+                            cell.value = backend.format_spreadsheet_error(message)
                             break
 
     if error_cells:
