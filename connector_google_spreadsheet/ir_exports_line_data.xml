@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+
+
+<record id="spreadsh1" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">name</field>
+</record>
+
+<record id="spreadsh2" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">model_id</field>
+</record>
+
+<record id="spreadsh3" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">document_sheet</field>
+</record>
+
+<record id="spreadsh4" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">header_row</field>
+</record>
+
+<record id="spreadsh5" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">data_row_start</field>
+</record>
+
+<record id="spreadsh6" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">data_row_end</field>
+</record>
+
+<record id="spreadsh7" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">chunk_size</field>
+</record>
+
+<record id="spreadsh8" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">sequence</field>
+</record>
+
+<record id="spreadsh9" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">backend_id</field>
+</record>
+
+<record id="spreadsh10" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">document_url</field>
+</record>
+
+
+    </data>
+</openerp>

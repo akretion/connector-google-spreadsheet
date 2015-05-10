@@ -38,6 +38,7 @@
     ],
     'data': [
         'backend_view.xml',
+        'ir_exports_line_data.xml',
     ],
     'external_dependencies': {
         'python': ['OpenSSL', 'oauth2client', 'gspread'],
