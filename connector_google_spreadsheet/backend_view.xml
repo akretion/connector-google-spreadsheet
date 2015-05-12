@@ -97,6 +97,40 @@
                   parent="menu_google_spreadsheet_root"
                   action="action_google_spreadsheet_backend"/>
 
+        <record id="view_spreadsheet_task_tree" model="ir.ui.view">
+            <field name="model">google.spreadsheet.document</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+            <tree string="Spreadsheet">
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="document_sheet"/>
+                <field name="data_row_start"/>
+                <field name="data_row_end"/>
+                <field name="chunk_size"/>
+            </tree>
+            </field>
+        </record>
+
+        <record id="action_spreadsheet_task" model="ir.actions.act_window">
+          <field name="name">Spreadsheet Tasks</field>
+          <field name="res_model">google.spreadsheet.document</field>
+          <field name="view_mode">tree</field>
+          <field name="view_id" ref="view_spreadsheet_task_tree"/>
+        </record>
+
+        <menuitem id="menu_export_spreadsheet_task"
+                  name="Export Tasks"
+                  parent="menu_google_spreadsheet_root"
+                  action="action_spreadsheet_task"/>
+
+        <!-- Export field profile -->
+        <record id="ir_exp_spreadsheet" model="ir.exports">
+            <field name="name">Spreadsheet</field>
+            <field name="resource">google.spreadsheet.document</field>
+        </record>
+
+
         <!-- After installation of the module, open the related menu -->
         <record id="action_google_spreadsheet_backend" model="ir.actions.client">
           <field name="name">Open Google Spreadsheet backend menu</field>

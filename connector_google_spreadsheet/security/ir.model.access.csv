@@ -1,0 +1,3 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_spreadsheet_backend_manager","spreadsheet backend manager","connector_google_spreadsheet.model_google_spreadsheet_backend","connector.group_connector_manager",1,1,1,1
+"access_spreadsheet_document_manager","spreadsheet document manager","connector_google_spreadsheet.model_google_spreadsheet_document","connector.group_connector_manager",1,1,1,1
