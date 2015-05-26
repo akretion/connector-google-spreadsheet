@@ -233,8 +233,8 @@ class GoogleSpreadsheetDocument(models.Model):
         self.submission_date = fields.Datetime.now()
         title = _("Executed task ")
         if task_result:
-            text = " '%s'\n%s, eof '%s'" % (
-                self.name, '\n'.join(task_result), eof)
+            text = " '%s'\n%s" % (
+                self.name, '\n'.join(task_result))
             vals = {'task_result': title + text}
             self.backend_id.write(vals)
         else:
@@ -267,8 +267,10 @@ class GoogleSpreadsheetBackend(models.Model):
     _backend_type = 'google.spreadsheet'
 
     name = fields.Char('Name', size=80)
-    email = fields.Char('Google Email')
-    p12_key = fields.Binary('Google P12 key', required=True)
+    email = fields.Char(help='Google Email')
+    p12_key = fields.Binary(
+        string='P12 key', required=True,
+        help="Google P12 key")
     version = fields.Selection(selection=[('3.0', 'Version 3')])
     task_result = fields.Text(
         'Last Task Result',

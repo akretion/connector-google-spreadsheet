@@ -7,10 +7,10 @@
             <form string="Google Spreadsheet Backend">
               <sheet>
                 <h1>Google Spreadsheet</h1>
-                <group col="4" string="Google Spreadsheet configuration">
+                <group col="4" string="Configuration">
                     <field name="version"/>
                     <field name="name"/>
-                    <separator colspan="4" string="Google Account"/>
+                    <separator colspan="4" string="Account"/>
                     <field name="email"/>
                     <field name="p12_key"/>
                 </group>
