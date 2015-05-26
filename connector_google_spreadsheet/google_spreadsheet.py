@@ -268,7 +268,7 @@ class GoogleSpreadsheetBackend(models.Model):
 
     name = fields.Char('Name', size=80)
     email = fields.Char('Google Email')
-    p12_key = fields.Binary('Google P12 key')
+    p12_key = fields.Binary('Google P12 key', required=True)
     version = fields.Selection(selection=[('3.0', 'Version 3')])
     task_result = fields.Text(
         'Last Task Result',
