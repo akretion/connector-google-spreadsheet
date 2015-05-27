@@ -27,7 +27,7 @@ import itertools
 
 from httplib2 import ServerNotFoundError
 import gspread
-from gspread.exceptions import NoValidUrlKeyFound
+from gspread.exceptions import (NoValidUrlKeyFound, HTTPError)
 from oauth2client.client import SignedJwtAssertionCredentials
 from openerp import models, fields, api, _
 from openerp.exceptions import Warning
@@ -388,7 +388,10 @@ def import_document(session, model_name, args):
     if error_col is not None:
         start = sheet.get_addr_int(row_start, error_col)
         stop = sheet.get_addr_int(row_end, error_col)
-        error_cells = sheet.range(start + ':' + stop)
+        try:
+            error_cells = sheet.range(start + ':' + stop)
+        except (HTTPError, Exception) as e:
+            raise Warning(SHEET_APP, e.message)
         for cell in error_cells:
             cell.value = ''
 
