@@ -27,7 +27,7 @@ import itertools
 
 from httplib2 import ServerNotFoundError
 import gspread
-from gspread.exceptions import NoValidUrlKeyFound
+from gspread.exceptions import NoValidUrlKeyFound, SpreadsheetNotFound
 from oauth2client.client import SignedJwtAssertionCredentials
 from openerp import models, fields, api, _
 from openerp.exceptions import Warning
@@ -39,7 +39,8 @@ SCOPE = ['https://spreadsheets.google.com/feeds',
          'https://docs.google.com/feeds']
 
 FIELDS_RECURSION_LIMIT = 2
-SHEET_APP = 'Spreadsheet Import'
+SHEET_APP = ("Google Spreadsheet Import Issue\n"
+             "-------------------------------------------")
 
 
 _logger = logging.getLogger(__name__)
@@ -60,6 +61,15 @@ def open_document(backend, document_url):
         document = gc.open_by_url(document_url)
     except NoValidUrlKeyFound:
         raise Warning(SHEET_APP, _('Google Drive: No valid key found in URL'))
+    except SpreadsheetNotFound:
+        raise Warning(SHEET_APP,
+                      _("Spreadsheet Not Found"
+                        "\n\nResolution\n----------------\n"
+                        "Check URL file & sharing options with it "
+                        "with this google user:\n\n%s" % backend.email))
+    except Exception as e:
+        raise Warning(SHEET_APP,
+                      _("Google Drive: %s" % e.message))
     return document
 
 
