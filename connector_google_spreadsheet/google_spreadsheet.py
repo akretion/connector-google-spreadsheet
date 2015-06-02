@@ -383,8 +383,15 @@ def import_document(session, model_name, args):
             fields[indice] = '/'.join(header)
         else:
             fields[indice] = False
-
-    data, import_fields = convert_import_data(data, fields)
+    try:
+        data, import_fields = convert_import_data(data, fields)
+    except Exception as e:
+        raise Warning(SHEET_APP,
+                      "convert_import_data method can't finish its job."
+                      "Here is your input data:\nheaders_raw %s"
+                      "\nfields %s"
+                      "\ndata %s\n\n%s" % (
+                          headers_raw, fields, data, e.message))
 
     # import the chunk of clean data
     result = model_obj.load(session.cr,
