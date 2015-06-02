@@ -18,6 +18,11 @@
     <field name="name">document_sheet</field>
 </record>
 
+<record id="spreadsh35" model="ir.exports.line">
+    <field name="export_id" ref="ir_exp_spreadsheet"/>
+    <field name="name">active</field>
+</record>
+
 <record id="spreadsh4" model="ir.exports.line">
     <field name="export_id" ref="ir_exp_spreadsheet"/>
     <field name="name">header_row</field>
