@@ -390,7 +390,15 @@ def import_document(session, model_name, args):
         stop = sheet.get_addr_int(row_end, error_col)
         try:
             error_cells = sheet.range(start + ':' + stop)
-        except (HTTPError, Exception) as e:
+        except HTTPError as e:
+            import pdb;pdb.set_trace()
+            # WIP
+            job_ids = list(session.env.prefetch['queue.job'])
+            requeue_vals = {'job_ids': (4, job_ids, False)}
+            session.env['queue.requeue.job'].create(requeue_vals)
+            raise Warning(SHEET_APP, e.message)
+        except Exception as e:
+            import pdb;pdb.set_trace()
             raise Warning(SHEET_APP, e.message)
         for cell in error_cells:
             cell.value = ''
