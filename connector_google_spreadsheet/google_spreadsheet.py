@@ -345,7 +345,9 @@ def import_document(session, model_name, args):
     col_end = args['sheet_col_end']
     error_col = args['error_col']
 
-    backend = session.browse('google.spreadsheet.backend', backend_id)
+    backend = session.env['google.spreadsheet.backend'].browse(
+        backend_id)
+
     document = open_document(backend, document_url)
     sheet = document.worksheet(document_sheet)
 
