@@ -296,8 +296,13 @@ class GoogleSpreadsheetBackend(models.Model):
     def format_spreadsheet_error(self, message):
         """ Used by the import_document function
             You may override it to customize your messages
+            Default behavior add connection identification to error message
         """
-        return message
+        string_uuid = self.env['ir.config_parameter'].get_param(
+            'database.uuid', default='')
+        connect_string = " || database '%s', uuid '%s'" % (self._cr.dbname,
+                                                           string_uuid)
+        return message + connect_string
 
 
 def open_document_url(session, job):
