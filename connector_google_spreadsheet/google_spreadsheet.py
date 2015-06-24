@@ -24,6 +24,7 @@ import logging
 import base64
 import operator
 import itertools
+import traceback
 
 from httplib2 import ServerNotFoundError
 import gspread
@@ -40,7 +41,7 @@ SCOPE = ['https://spreadsheets.google.com/feeds',
 
 FIELDS_RECURSION_LIMIT = 2
 SHEET_APP = ("Google Spreadsheet Import Issue\n"
-             "-------------------------------------------")
+             "--------------------------------------------------")
 
 
 _logger = logging.getLogger(__name__)
@@ -390,22 +391,31 @@ def import_document(session, model_name, args):
             fields[indice] = '/'.join(header)
         else:
             fields[indice] = False
-    try:
-        data, import_fields = convert_import_data(data, fields)
-    except Exception as e:
-        raise Warning(SHEET_APP,
-                      "convert_import_data method can't finish its job."
-                      "Here is your input data:\nheaders_raw %s"
-                      "\nfields %s"
-                      "\ndata %s\n\n%s" % (
-                          headers_raw, fields, data, e.message))
+    data, import_fields = convert_import_data(data, fields)
 
-    # import the chunk of clean data
-    result = model_obj.load(session.cr,
-                            session.uid,
-                            import_fields,
-                            data,
-                            context=session.context)
+    try:
+        # import the chunk of clean data
+        result = model_obj.load(session.cr,
+                                session.uid,
+                                import_fields,
+                                data,
+                                context=session.context)
+    except Exception as e:
+        first_row = {}
+        imported_fields = [x for x in headers_raw if x in fields]
+        unimported_fields = [x for x in headers_raw if x not in fields]
+        traceb = traceback.format_exc()
+        if data:
+            first_row = dict(zip(imported_fields, data[0]))
+        raise Warning(
+            SHEET_APP,
+            "convert_import_data method can't finish its job. "
+            "Here is your input data:\n\nNOT imported fields %s"
+            "\n\nIMPORTED fields %s"
+            "\n\nDATA %s\n\nFirst Row Data: %s\n\n"
+            "Returned Error Value: %s\n\nTraceback:\n %s" % (
+                unimported_fields, imported_fields, data,
+                first_row, e.message, traceb))
 
     # clear previous errors
     error_cells = None
