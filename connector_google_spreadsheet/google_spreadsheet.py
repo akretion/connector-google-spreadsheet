@@ -30,7 +30,7 @@ from httplib2 import ServerNotFoundError
 import gspread
 from gspread.exceptions import NoValidUrlKeyFound, SpreadsheetNotFound
 from oauth2client.client import SignedJwtAssertionCredentials
-from openerp import models, fields, api, _
+from openerp import registry, models, fields, api, _
 from openerp.exceptions import Warning
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.queue.job import job, related_action
@@ -79,6 +79,9 @@ class GoogleSpreadsheetDocument(models.Model):
     _description = 'Google Spreadsheet Document'
     _order = 'sequence ASC'
 
+    auto = fields.Boolean(
+        help="If checked, tasks are run at startup "
+             "(until all those tasks are launched)")
     name = fields.Char('Name', required=True)
     model_id = fields.Many2one(
         'ir.model',
@@ -113,6 +116,40 @@ class GoogleSpreadsheetDocument(models.Model):
         'google.spreadsheet.backend',
         string='Google Spreadsheet Backend'
     )
+
+    @api.one
+    def toggle_chunk_size(self):
+        if self.chunk_size != 1:
+            chunk_size = 1
+        else:
+            chunk_size = 100
+        self.write({'chunk_size': chunk_size})
+
+    @api.model
+    def startup_import(self, *args, **kwargs):
+        tasks = self.search(
+            [('submission_date', '=', False), ('auto', '=', True)],
+            order='sequence')
+        if tasks:
+            # run only one task at a time because execution time
+            # is unpredictable: it depends of Google
+            tasks[0].run()
+        else:
+            # when all tasks have been run, the cron can be inactivated
+            cron = self.env.ref(
+                'connector_google_spreadsheet.ir_cron_spreadsheet_import')
+            session = ConnectorSession(
+                self.env.cr,
+                self.env.uid,
+                self.env.context,
+            )
+            description = "Inactive spreadsheet startup cron"
+            # a cron can't change its state itself
+            # define a job to unactive the cron
+            set_cron_inactive.delay(session, self._name,
+                                    {'cron_id': cron.id}, priority=1,
+                                    description=description)
+            return True
 
     def _prepare_import_args(
             self, fields, row_start, row_end, col_start, col_end, error_col):
@@ -332,6 +369,17 @@ def convert_import_data(rows_to_import, fields):
     ]
 
     return data, import_fields
+
+
+@job
+def set_cron_inactive(session, model_name, args):
+    """ Job created by the cron to unactive itself """
+    cr = registry(session.cr.dbname).cursor()
+    cron_id = args['cron_id']
+    cr.execute("UPDATE ir_cron SET active='f' WHERE id = %s" % cron_id)
+    cr.commit()
+    cr.close()
+    return True
 
 
 @job

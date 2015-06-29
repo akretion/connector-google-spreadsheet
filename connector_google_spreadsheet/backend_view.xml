@@ -25,18 +25,23 @@
                           context="{'google_spreadsheet_id': active_id}">
                         <tree>
                           <field name="sequence" widget="handle"/>
+                          <field name="auto"/>
                           <field name="name"/>
                           <field name="document_sheet"/>
                           <button name="run" string="Run"
                                   icon="gtk-go-forward"
                                   type="object"
-                                  attrs="{'invisible': [('active', '=', False)]}">
-                          </button>
+                                  attrs="{'invisible': [('active', '=', False)]}"/>
                           <field name="active" invisible="1"/>
                           <field name="submission_date"/>
                           <field name="data_row_start"/>
                           <field name="data_row_end"/>
                           <field name="chunk_size"/>
+                          <button name="toggle_chunk_size"
+                                  icon="gtk-about"
+                                  help="Toggle chunk size between 1 and 100"
+                                  attrs="{'invisible': [('active', '=', False)]}"
+                                  type="object"/>
                         </tree>
                         <form>
                           <group colspan="4">
@@ -46,6 +51,13 @@
                               <field name="submission_date"/>
                               <field name="model_id"/>
                               <field name="chunk_size"/>
+                              <field name="auto"/>
+                              <button name="toogle_chunk_size"
+                                  string="1-100"
+                                  help="Toggle between 1 and 100"
+                                  type="object"
+                                  attrs="{'invisible': [('active', '=', False)]}"
+                                  class="oe_link"/>
                             </group>
                             <group>
                               <separator string="Data Position in Sheet" colspan="4"/>
@@ -123,12 +135,6 @@
                   name="Export Tasks"
                   parent="menu_google_spreadsheet_root"
                   action="action_spreadsheet_task"/>
-
-        <!-- Export field profile -->
-        <record id="ir_exp_spreadsheet" model="ir.exports">
-            <field name="name">Spreadsheet</field>
-            <field name="resource">google.spreadsheet.document</field>
-        </record>
 
 
         <!-- After installation of the module, open the related menu -->

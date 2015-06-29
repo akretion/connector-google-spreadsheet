@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-07 13:12+0000\n"
-"PO-Revision-Date: 2015-04-07 13:12+0000\n"
+"POT-Creation-Date: 2015-06-29 15:21+0000\n"
+"PO-Revision-Date: 2015-06-29 15:21+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,10 +16,8 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:207
-#, python-format
-msgid "\n"
-"Check coherence between chunk size '%s' and real end of file '%s'"
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Account"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -28,15 +26,13 @@ msgid "Active"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: model:ir.ui.menu,name:connector_google_spreadsheet.menu_google_spreadsheet_backend
-msgid "Backends"
+#: field:google.spreadsheet.document,auto:0
+msgid "Auto"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:56
-#, python-format
-msgid "Check your internet connexion.\n"
-"Impossible to establish a connection with Google Services"
+#: model:ir.ui.menu,name:connector_google_spreadsheet.menu_google_spreadsheet_backend
+msgid "Backends"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -47,6 +43,11 @@ msgstr ""
 #. module: connector_google_spreadsheet
 #: help:google.spreadsheet.document,header_row:0
 msgid "Columns name position"
+msgstr ""
+
+#. module: connector_google_spreadsheet
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Configuration"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -77,9 +78,13 @@ msgid "ERP Model"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:200
-#, python-format
-msgid "Executed task "
+#: field:google.spreadsheet.backend,email:0
+msgid "Email"
+msgstr ""
+
+#. module: connector_google_spreadsheet
+#: model:ir.ui.menu,name:connector_google_spreadsheet.menu_export_spreadsheet_task
+msgid "Export Tasks"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -93,23 +98,12 @@ msgid "First row of data"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
-msgid "Google Account"
-msgstr ""
-
-#. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:62
-#, python-format
-msgid "Google Drive: No valid key found in URL"
-msgstr ""
-
-#. module: connector_google_spreadsheet
-#: field:google.spreadsheet.backend,email:0
+#: help:google.spreadsheet.backend,email:0
 msgid "Google Email"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: field:google.spreadsheet.backend,p12_key:0
+#: help:google.spreadsheet.backend,p12_key:0
 msgid "Google P12 key"
 msgstr ""
 
@@ -137,11 +131,6 @@ msgid "Google Spreadsheet Document"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
-msgid "Google Spreadsheet configuration"
-msgstr ""
-
-#. module: connector_google_spreadsheet
 #: field:google.spreadsheet.backend,document_ids:0
 msgid "Google spreadsheet documents"
 msgstr ""
@@ -149,12 +138,6 @@ msgstr ""
 #. module: connector_google_spreadsheet
 #: field:google.spreadsheet.document,header_row:0
 msgid "Header"
-msgstr ""
-
-#. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:147
-#, python-format
-msgid "Header cells seems empty!"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -166,6 +149,11 @@ msgstr ""
 #: field:google.spreadsheet.backend,id:0
 #: field:google.spreadsheet.document,id:0
 msgid "ID"
+msgstr ""
+
+#. module: connector_google_spreadsheet
+#: help:google.spreadsheet.document,auto:0
+msgid "If checked, tasks are run at startup (until all those tasks are launched)"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -207,14 +195,13 @@ msgid "Name"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:160
-#, python-format
-msgid "Nothing to import,the first column of data seams empty!"
+#: model:ir.actions.client,name:connector_google_spreadsheet.action_google_spreadsheet_backend
+msgid "Open Google Spreadsheet backend menu"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: model:ir.actions.client,name:connector_google_spreadsheet.action_google_spreadsheet_backend
-msgid "Open Google Spreadsheet backend menu"
+#: field:google.spreadsheet.backend,p12_key:0
+msgid "P12 key"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -233,8 +220,18 @@ msgid "Sheet Name"
 msgstr ""
 
 #. module: connector_google_spreadsheet
+#: view:google.spreadsheet.document:connector_google_spreadsheet.view_spreadsheet_task_tree
+msgid "Spreadsheet"
+msgstr ""
+
+#. module: connector_google_spreadsheet
 #: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
 msgid "Spreadsheet Location"
+msgstr ""
+
+#. module: connector_google_spreadsheet
+#: model:ir.actions.act_window,name:connector_google_spreadsheet.action_spreadsheet_task
+msgid "Spreadsheet Tasks"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -248,15 +245,13 @@ msgid "Tasks"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:141
-#, python-format
-msgid "The data row start must precede data row end! Check the row parameters"
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Toggle between 1 and 100"
 msgstr ""
 
 #. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:137
-#, python-format
-msgid "The header row must precede data! Check the row parameters"
+#: view:google.spreadsheet.backend:connector_google_spreadsheet.view_google_spreadsheet_backend_form
+msgid "Toggle chunk size between 1 and 100"
 msgstr ""
 
 #. module: connector_google_spreadsheet
@@ -277,11 +272,5 @@ msgstr ""
 #. module: connector_google_spreadsheet
 #: selection:google.spreadsheet.backend,version:0
 msgid "Version 3"
-msgstr ""
-
-#. module: connector_google_spreadsheet
-#: code:addons/connector_google_spreadsheet/google_spreadsheet.py:192
-#, python-format
-msgid "import job created (sheet row %s to %s)"
 msgstr ""
 
