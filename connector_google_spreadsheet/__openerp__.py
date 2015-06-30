@@ -37,8 +37,9 @@
         'connector',
     ],
     'data': [
-        'backend_view.xml',
         'ir_exports_line_data.xml',
+        'ir_cron_data.xml',
+        'backend_view.xml',
         'security/ir.model.access.csv'
     ],
     'external_dependencies': {

@@ -3,6 +3,12 @@
     <data noupdate="1">
 
 
+<!-- Export field profile -->
+<record id="ir_exp_spreadsheet" model="ir.exports">
+    <field name="name">Spreadsheet</field>
+    <field name="resource">google.spreadsheet.document</field>
+</record>
+
 <record id="spreadsh1" model="ir.exports.line">
     <field name="export_id" ref="ir_exp_spreadsheet"/>
     <field name="name">name</field>
