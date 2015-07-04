@@ -16,10 +16,6 @@
                 </group>
                 <notebook>
                   <page name="task" string="Tasks">
-                    <group col="1">
-                      <label for="task_result"/>
-                      <field name="task_result" nolabel="1"/>
-                    </group>
                     <group colspan="6">
                       <field name="document_ids" nolabel="1"
                           context="{'google_spreadsheet_id': active_id}">
@@ -72,6 +68,11 @@
                           </group>
                         </form>
                       </field>
+                    </group>
+                  </page>
+                  <page name="log" string="Log">
+                    <group col="1">
+                      <field name="task_result" nolabel="1"/>
                     </group>
                   </page>
                 </notebook>
