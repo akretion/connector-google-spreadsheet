@@ -363,11 +363,23 @@ def convert_import_data(rows_to_import, fields):
         mapper = operator.itemgetter(*indices)
 
     import_fields = filter(None, fields)
-    data = [
-        row for row in itertools.imap(mapper, rows_to_import)
-        if any(row)
-    ]
+    filter_row = False
+    if 'skip_import' in fields:
+        skip_import = fields.index('skip_import')
+        filter_row = True
 
+    data = []
+    for row in itertools.imap(mapper, rows_to_import):
+        if any(row):
+            if filter_row:
+                if row[skip_import]:
+                    continue
+                else:
+                    row = list(row)
+                    row.pop(skip_import)
+            data.append(row)
+    if filter_row:
+        import_fields.remove('skip_import')
     return data, import_fields
 
 
@@ -425,9 +437,13 @@ def import_document(session, model_name, args):
         context=session.context,
         depth=FIELDS_RECURSION_LIMIT
     )
+    available_fields.append({
+        u'name': u'skip_import',
+        u'string': u'Skip Import',
+        })
 
     headers_raw = iter([fields])
-    headers_raw, headers_match = import_obj._match_headers(
+    headers_rawders, headers_match = import_obj._match_headers(
         headers_raw,
         available_fields,
         options={'headers': True},
@@ -440,7 +456,6 @@ def import_document(session, model_name, args):
         else:
             fields[indice] = False
     data, import_fields = convert_import_data(data, fields)
-
     try:
         # import the chunk of clean data
         result = model_obj.load(session.cr,
