@@ -366,7 +366,7 @@ def convert_import_data(rows_to_import, fields):
 
     import_fields = filter(None, fields)
     filter_row = False
-    if 'skip_import' in fields:
+    if 'skip_import' in import_fields:
         skip_import = import_fields.index('skip_import')
         filter_row = True
 
