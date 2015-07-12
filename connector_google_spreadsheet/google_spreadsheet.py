@@ -249,7 +249,9 @@ class GoogleSpreadsheetDocument(models.Model):
                 row_end = row_start
                 continue
 
-            size = row_end - row_start
+            # If the row start and row end is the same then we import one line
+            # So the minimal size is 1
+            size = row_end - row_start + 1
             if cut_allowed(i, indexes) \
                     and size >= self.chunk_size or row_end == eof:
 
@@ -363,12 +365,28 @@ def convert_import_data(rows_to_import, fields):
         mapper = operator.itemgetter(*indices)
 
     import_fields = filter(None, fields)
-    data = [
-        row for row in itertools.imap(mapper, rows_to_import)
-        if any(row)
-    ]
+    filter_row = False
+    if 'skip_import' in import_fields:
+        skip_import = import_fields.index('skip_import')
+        filter_row = True
 
-    return data, import_fields
+    data = []
+    original_position = {}
+    row_number = -1
+    for row in itertools.imap(mapper, rows_to_import):
+        row_number += 1
+        if any(row):
+            if filter_row:
+                if row[skip_import]:
+                    continue
+                else:
+                    row = list(row)
+                    row.pop(skip_import)
+            original_position[len(data)] = row_number
+            data.append(row)
+    if filter_row:
+        import_fields.remove('skip_import')
+    return data, import_fields, original_position
 
 
 @job
@@ -425,9 +443,13 @@ def import_document(session, model_name, args):
         context=session.context,
         depth=FIELDS_RECURSION_LIMIT
     )
+    available_fields.append({
+        u'name': u'skip_import',
+        u'string': u'Skip Import',
+        })
 
     headers_raw = iter([fields])
-    headers_raw, headers_match = import_obj._match_headers(
+    headers_rawders, headers_match = import_obj._match_headers(
         headers_raw,
         available_fields,
         options={'headers': True},
@@ -439,8 +461,7 @@ def import_document(session, model_name, args):
             fields[indice] = '/'.join(header)
         else:
             fields[indice] = False
-    data, import_fields = convert_import_data(data, fields)
-
+    data, import_fields, original_position = convert_import_data(data, fields)
     try:
         # import the chunk of clean data
         result = model_obj.load(session.cr,
@@ -478,9 +499,8 @@ def import_document(session, model_name, args):
     errors = False
     messages = []
     for m in result['messages']:
-
-        row_from = row_start + m['rows']['from']
-        row_to = row_start + m['rows']['to']
+        row_from = row_start + original_position[m['rows']['from']]
+        row_to = row_start + original_position[m['rows']['to']]
 
         for row in range(row_from, row_to+1):
             message = m['message']
