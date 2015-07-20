@@ -332,6 +332,12 @@ class GoogleSpreadsheetBackend(models.Model):
         'backend_id', string='Google spreadsheet documents',
     )
 
+    @api.one
+    def active_cron_sheet(self):
+        cron = self.env.ref(
+            'connector_google_spreadsheet.ir_cron_spreadsheet_import')
+        cron.write({'active': True})
+
     @api.model
     def format_spreadsheet_error(self, message):
         """ Used by the import_document function

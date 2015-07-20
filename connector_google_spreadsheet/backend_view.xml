@@ -13,6 +13,11 @@
                     <separator colspan="4" string="Account"/>
                     <field name="email"/>
                     <field name="p12_key"/>
+                    <span/>
+                    <span/>
+                    <button name="active_cron_sheet" string="Import"
+                            help="Import all tasks with 'auto' field checked"
+                            type="object" class="oe_link"/>
                 </group>
                 <notebook>
                   <page name="task" string="Tasks">
