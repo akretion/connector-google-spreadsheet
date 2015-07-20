@@ -173,7 +173,8 @@ class GoogleSpreadsheetDocument(models.Model):
             self.env.uid,
             self.env.context,
         )
-        task_result = []
+        task_result = ''
+        count_created_job = 0
         backend = self.backend_id
         document = open_document(backend, self.document_url)
         sheet = document.worksheet(self.document_sheet)
@@ -267,9 +268,7 @@ class GoogleSpreadsheetDocument(models.Model):
                 import_document.delay(session, self._name,
                                       import_args, priority=self.sequence,
                                       description=description)
-                task_result.append(
-                    _("import job created (sheet row %s to %s)")
-                    % (row_start, row_end))
+                count_created_job += 1
 
                 if row_end == eof:
                     break
@@ -281,18 +280,19 @@ class GoogleSpreadsheetDocument(models.Model):
 
         # log result (job creation)
         self.submission_date = fields.Datetime.now()
-        title = _("Executed task ")
-        if task_result:
-            text = " '%s'\n%s" % (
-                self.name, '\n'.join(task_result))
-            vals = {'task_result': title + text}
+        if count_created_job:
+            task_result = (
+                _("Last executed task '%s'\n%s created jobs ") % (
+                    self.name, count_created_job))
+            task_result += _("(menu Connectors > Queue > Jobs).")
+            vals = {'task_result': task_result}
             self.backend_id.write(vals)
         else:
-            title += " '%s'\nNo created job" % self.name
-            alert_mess = (_("\nCheck coherence between chunk size '%s' "
+            task_result = _("Task '%s'\nNo created job") % self.name
+            task_result += (_("\nCheck coherence between chunk size '%s' "
                             "and real end of file '%s'")
-                          % (self.chunk_size, eof))
-            vals = {'task_result': title + alert_mess}
+                            % (self.chunk_size, eof))
+            vals = {'task_result': task_result}
             self.backend_id.write(vals)
 
         self.ensure_one()
