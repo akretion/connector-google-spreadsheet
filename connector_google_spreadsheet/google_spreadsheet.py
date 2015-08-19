@@ -35,6 +35,7 @@ from openerp.exceptions import Warning
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.queue.job import job, related_action
 from openerp.addons.connector.exception import FailedJobError
+from openerp.tools import config
 
 SCOPE = ['https://spreadsheets.google.com/feeds',
          'https://docs.google.com/feeds']
@@ -55,20 +56,24 @@ def open_document(backend, document_url):
     try:
         gc = gspread.authorize(credentials)
     except ServerNotFoundError:
+        if config.get('debug_mode'): raise
         raise Warning(SHEET_APP, _("Check your internet connection.\n"
                                    "Impossible to establish a connection "
                                    "with Google Services"))
     try:
         document = gc.open_by_url(document_url)
     except NoValidUrlKeyFound:
+        if config.get('debug_mode'): raise
         raise Warning(SHEET_APP, _('Google Drive: No valid key found in URL'))
     except SpreadsheetNotFound:
+        if config.get('debug_mode'): raise
         raise Warning(SHEET_APP,
                       _("Spreadsheet Not Found"
                         "\n\nResolution\n----------------\n"
                         "Check URL file & sharing options with it "
                         "with this google user:\n\n%s" % backend.email))
     except Exception as e:
+        if config.get('debug_mode'): raise
         raise Warning(SHEET_APP,
                       _("Google Drive: %s" % e.message))
     return document
@@ -476,6 +481,7 @@ def import_document(session, model_name, args):
                                 data,
                                 context=session.context)
     except Exception as e:
+        if config.get('debug_mode'): raise
         first_row = {}
         imported_fields = [x for x in headers_raw if x in fields]
         unimported_fields = [x for x in headers_raw if x not in fields]
