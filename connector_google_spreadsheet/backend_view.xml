@@ -15,9 +15,9 @@
                     <field name="p12_key"/>
                     <span/>
                     <span/>
-                    <button name="active_cron_sheet" string="Import"
-                            help="Import all tasks with 'auto' field checked"
-                            type="object" class="oe_link"/>
+                    <button name="active_cron_sheet" string="Trigger Initial Import"
+                            help="Import all tasks with 'auto' field checked and with no 'submission date': a planified task (cron) run one task at once."
+                            type="object"/>
                 </group>
                 <notebook>
                   <page name="task" string="Tasks">

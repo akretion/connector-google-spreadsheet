@@ -30,6 +30,8 @@ from httplib2 import ServerNotFoundError
 import gspread
 from gspread.exceptions import NoValidUrlKeyFound, SpreadsheetNotFound
 from oauth2client.client import SignedJwtAssertionCredentials
+from datetime import datetime
+
 from openerp import registry, models, fields, api, _
 from openerp.exceptions import Warning
 from openerp.addons.connector.session import ConnectorSession
@@ -132,11 +134,13 @@ class GoogleSpreadsheetDocument(models.Model):
 
     @api.model
     def startup_import(self, *args, **kwargs):
+        # TODO need to restrict this task search to the backend
+        # which called this import
         tasks = self.search(
             [('submission_date', '=', False), ('auto', '=', True)],
             order='sequence')
         if tasks:
-            # run only one task at a time because execution time
+            # run only one task at a once because execution time
             # is unpredictable: it depends of Google
             tasks[0].run()
         else:
@@ -342,6 +346,12 @@ class GoogleSpreadsheetBackend(models.Model):
         cron = self.env.ref(
             'connector_google_spreadsheet.ir_cron_spreadsheet_import')
         cron.write({'active': True})
+        params = {'interval_number': cron.interval_number,
+                  'interval_type': cron.interval_type,
+                  'now': datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        message = _("Initial import will begin less than %(interval_number)s"
+                    " %(interval_type)s after %(now)s" % params)
+        self.write({'task_result': message})
 
     @api.model
     def format_spreadsheet_error(self, message):
