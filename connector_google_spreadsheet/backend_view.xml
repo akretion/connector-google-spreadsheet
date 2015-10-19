@@ -5,7 +5,7 @@
           <field name="model">google.spreadsheet.backend</field>
           <field name="arch" type="xml">
             <form string="Google Spreadsheet Backend">
-              <sheet>
+              <sheet class="oe_form_sheet_full_screen">
                 <h1>Google Spreadsheet</h1>
                 <group col="4" string="Configuration">
                     <field name="version"/>

@@ -35,6 +35,7 @@
     ''',
     'depends': [
         'connector',
+        'web_sheet_full_width_selective',
     ],
     'data': [
         'ir_exports_line_data.xml',
