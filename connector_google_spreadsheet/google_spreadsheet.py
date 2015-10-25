@@ -45,6 +45,7 @@ SCOPE = ['https://spreadsheets.google.com/feeds',
 FIELDS_RECURSION_LIMIT = 2
 SHEET_APP = ("Google Spreadsheet Import Issue\n"
              "--------------------------------------------------")
+INITIAL_IMPORT_DOMAIN = [('auto', '=', True), ('submission_date', '=', False)]
 
 
 _logger = logging.getLogger(__name__)
@@ -124,21 +125,18 @@ class GoogleSpreadsheetDocument(models.Model):
         string='Google Spreadsheet Backend'
     )
 
-    @api.one
+    @api.multi
     def toggle_chunk_size(self):
-        if self.chunk_size != 1:
-            chunk_size = 1
-        else:
-            chunk_size = 100
-        self.write({'chunk_size': chunk_size})
+        for record in self:
+            if record.chunk_size != 1:
+                chunk_size = 1
+            else:
+                chunk_size = 100
+            record.write({'chunk_size': chunk_size})
 
     @api.model
     def startup_import(self, *args, **kwargs):
-        # TODO need to restrict this task search to the backend
-        # which called this import
-        tasks = self.search(
-            [('submission_date', '=', False), ('auto', '=', True)],
-            order='sequence')
+        tasks = self.search(INITIAL_IMPORT_DOMAIN, order='sequence')
         if tasks:
             # run only one task at a once because execution time
             # is unpredictable: it depends of Google
@@ -325,15 +323,20 @@ class GoogleSpreadsheetBackend(models.Model):
 
     _backend_type = 'google.spreadsheet'
 
-    name = fields.Char('Name', size=80)
-    email = fields.Char(help='Google Email')
+    name = fields.Char(
+        default="?", copy=False,
+        help="Choose a name according tasks defined below.")
+    email = fields.Char(required=True, help='Google developer email account')
     p12_key = fields.Binary(
         string='P12 key', required=True,
-        help="Google P12 key")
-    version = fields.Selection(selection=[('3.0', 'Version 3')])
+        help="Google Sheets Key\n see https://developers.google.com/"
+             "console/help/new/#service_accounts")
+    version = fields.Selection(
+        selection=[('3.0', 'Version 3')], default='3.0',
+        help="Google Sheet API\n"
+             "https://developers.google.com/google-apps/spreadsheets/")
     task_result = fields.Text(
-        'Last Task Result',
-        readonly=True,
+        'Last Task Result', readonly=True, copy=False,
         help="Here is the log of last action occured during "
              "the importation process")
     document_ids = fields.One2many(
@@ -341,8 +344,22 @@ class GoogleSpreadsheetBackend(models.Model):
         'backend_id', string='Google spreadsheet documents',
     )
 
-    @api.one
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)',
+         _("Spreadsheet Import Backend 'Name' field must be unique")),
+    ]
+
+    @api.multi
     def active_cron_sheet(self):
+        self.ensure_one()
+        tasks = self.env['google.spreadsheet.document'].search(
+            INITIAL_IMPORT_DOMAIN)
+        domain_string = ['%s %s %s' % (x[0], x[1], x[2])
+                         for x in INITIAL_IMPORT_DOMAIN]
+        message = _("No task with satisfied conditions (fields %s)"
+                    " to import" % ' and '.join(domain_string))
+        if not tasks:
+            return self.write({'task_result': message})
         cron = self.env.ref(
             'connector_google_spreadsheet.ir_cron_spreadsheet_import')
         cron.write({'active': True})
